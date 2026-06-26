@@ -18,6 +18,7 @@ import * as z from 'zod';
 
 import { ScreenHeader } from '@/components/screen-header';
 import { useClients } from '@/hooks/use-clients';
+import { getFriendlyErrorMessage } from '@/lib/errors';
 import { useUIStore } from '@/stores/ui';
 
 const clientSchema = z.object({
@@ -75,7 +76,7 @@ export default function NovoClienteScreen() {
       showAlert({
         type: 'error',
         title: 'Erro ao salvar',
-        message: error.message || 'Não foi possível salvar o cliente.'
+        message: getFriendlyErrorMessage(error, 'Não foi possível salvar o cliente.')
       });
     } finally {
       setLoading(false);

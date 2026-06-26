@@ -20,6 +20,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as z from 'zod';
+import { getFriendlyErrorMessage } from '../../lib/errors';
 import { supabase } from '../../lib/supabase';
 
 const signupSchema = z.object({
@@ -92,7 +93,7 @@ export default function SignupScreen() {
     });
 
     if (error) {
-      showAlert({ type: 'error', title: 'Erro ao cadastrar', message: error.message });
+      showAlert({ type: 'error', title: 'Erro ao cadastrar', message: getFriendlyErrorMessage(error, 'Não foi possível criar sua conta.') });
       setLoading(false);
       return;
     }

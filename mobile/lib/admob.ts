@@ -1,4 +1,4 @@
-import mobileAds from 'react-native-google-mobile-ads';
+import mobileAds, { AdsConsent } from 'react-native-google-mobile-ads';
 
 /**
  * Inicializa o Google AdMob
@@ -16,17 +16,19 @@ export async function initializeAdMob() {
 }
 
 /**
- * Configura opções de consentimento (GDPR/CCPA)
- * Importante para conformidade com leis de privacidade
+ * Executa o fluxo de consentimento do UMP (GDPR/LGPD): solicita as
+ * informações de consentimento e, se necessário, exibe o formulário
+ * renderizado pelo Google. Deve ser chamado antes de inicializar o AdMob.
+ *
+ * @returns `true` se o app pode solicitar anúncios (consentimento obtido
+ * ou não exigido para a região do usuário), `false` em caso contrário.
  */
-export async function setAdMobConsent(hasConsent: boolean) {
+export async function requestAdsConsent(): Promise<boolean> {
   try {
-    const consentInfo = await mobileAds().requestConsentInfoUpdate();
-
-    if (consentInfo.isConsentFormAvailable) {
-      await mobileAds().showConsentForm();
-    }
+    const consentInfo = await AdsConsent.gatherConsent();
+    return consentInfo.canRequestAds;
   } catch (error) {
-    console.error('[AdMob] Erro ao configurar consentimento:', error);
+    console.error('[AdMob] Erro ao obter consentimento:', error);
+    return false;
   }
 }

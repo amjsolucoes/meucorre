@@ -12,6 +12,7 @@ import * as z from 'zod';
 import MaskInput from 'react-native-mask-input';
 import { useProfile } from '@/hooks/use-profile';
 import { useProfessions } from '@/hooks/use-professions';
+import { getFriendlyErrorMessage } from '@/lib/errors';
 import { useUIStore } from '@/stores/ui';
 import { LinearGradient } from 'expo-linear-gradient';
 import { ScreenHeader } from '@/components/screen-header';
@@ -175,7 +176,7 @@ export default function EditarPerfilScreen() {
         onConfirm: () => router.push('/perfil')
       });
     } catch (error: any) {
-      showAlert({ type: 'error', title: 'Erro', message: error.message || 'Falha ao salvar' });
+      showAlert({ type: 'error', title: 'Erro', message: getFriendlyErrorMessage(error, 'Falha ao salvar.') });
     } finally {
       setIsSaving(false);
     }

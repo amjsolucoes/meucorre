@@ -84,4 +84,9 @@ export const MobileAds = () => ({
   setRequestConfiguration: () => {},
 });
 
+// Mock do AdsConsent (UMP não se aplica na web — anúncios web não são exibidos por este SDK)
+export const AdsConsent = {
+  gatherConsent: () => Promise.resolve({ canRequestAds: false }),
+};
+
 export default MobileAds;

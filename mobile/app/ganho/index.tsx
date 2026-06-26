@@ -2,6 +2,7 @@ import { ScreenHeader } from '@/components/screen-header';
 import { useClients } from '@/hooks/use-clients';
 import { useProfile } from '@/hooks/use-profile';
 import { useTransactions } from '@/hooks/use-transactions';
+import { getFriendlyErrorMessage } from '@/lib/errors';
 import { useAuthStore } from '@/stores/auth';
 import { useUIStore } from '@/stores/ui';
 import { Ionicons } from '@expo/vector-icons';
@@ -109,7 +110,7 @@ export default function NovoGanhoScreen() {
       showAlert({
         type: 'error',
         title: 'Opa, algo deu errado',
-        message: error.message || 'Não foi possível salvar o ganho. Tente novamente.'
+        message: getFriendlyErrorMessage(error, 'Não foi possível salvar o ganho. Tente novamente.')
       });
     } finally {
       setLoading(false);

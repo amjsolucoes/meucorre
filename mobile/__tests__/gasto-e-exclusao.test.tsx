@@ -4,11 +4,9 @@
 import React from 'react';
 import { renderHook, act, waitFor, render, fireEvent } from '@testing-library/react-native';
 import { useTransactions } from '@/hooks/use-transactions';
-import { useProfile } from '@/hooks/use-profile';
 import { supabase } from '@/lib/supabase';
 import ExcluirContaScreen from '@/app/perfil/excluir';
 import { useUIStore } from '@/stores/ui';
-import { useAuthStore } from '@/stores/auth';
 
 // Mock do useUIStore para podermos interceptar os alertas disparados
 jest.mock('@/stores/ui', () => {
@@ -33,6 +31,7 @@ describe('Testes de Gastos de Usuário (Expense CRUD) e Exclusão de Conta (Casc
       delete: jest.fn().mockReturnThis(),
       eq: jest.fn().mockReturnThis(),
       order: jest.fn().mockReturnThis(),
+      single: jest.fn().mockResolvedValue({ data, error }),
       then: jest.fn((resolve) => resolve({ data, error })),
     };
     return chain;
@@ -106,39 +105,22 @@ describe('Testes de Gastos de Usuário (Expense CRUD) e Exclusão de Conta (Casc
     });
   });
 
-  describe('2. Exclusão de Conta e Garantia de Cascata (Clean Delete)', () => {
-    it('deve deletar TODAS as informações vinculadas à pessoa (transações, agendamentos, clientes e perfil) ao confirmar exclusão de conta na tela', async () => {
-      // Mock do showAlert e signOut
+  describe('2. Exclusão de Conta (via Edge Function com service_role)', () => {
+    it('deve chamar a Edge Function de exclusão e encerrar a sessão ao confirmar na tela', async () => {
       const mockShowAlert = jest.fn();
-      const mockSignOut = jest.fn();
-      
+
       (useUIStore as any).mockReturnValue({
         showAlert: mockShowAlert,
         hideAlert: jest.fn(),
       });
 
-      (useAuthStore as any).mockReturnValue({
-        user: { id: 'user-test-123' },
-        signOut: mockSignOut,
-      });
-
-      // Configura os mocks de deleção de tabelas no Supabase
-      const deleteMock = jest.fn().mockReturnThis();
-      const eqMock = jest.fn().mockResolvedValue({ error: null });
-      const selectMock = jest.fn().mockReturnThis();
-      
-      const chainMock: any = {
-        delete: deleteMock,
-        eq: eqMock,
-        select: selectMock,
-        then: jest.fn((resolve) => resolve({ data: [], error: null })),
-      };
-
-      (supabase.from as jest.Mock).mockImplementation(() => chainMock);
+      // Perfil carregado ao montar a tela (useProfile chama fetchProfile no mount)
+      (supabase.from as jest.Mock).mockImplementation(() => mockFrom({ id: 'user-test-123', name: 'Teste' }));
+      (supabase.functions.invoke as jest.Mock).mockResolvedValue({ data: { success: true }, error: null });
 
       // Renderiza a tela de excluir conta
       const { getByText } = render(<ExcluirContaScreen />);
-      
+
       // Encontra e pressiona o botão de Excluir Conta
       const deleteButton = getByText('EXCLUIR MINHA CONTA');
       fireEvent.press(deleteButton);
@@ -157,26 +139,13 @@ describe('Testes de Gastos de Usuário (Expense CRUD) e Exclusão de Conta (Casc
       });
 
       // VERIFICAÇÃO CRÍTICA DE PRIVACIDADE E SEGURANÇA:
-      // O banco de dados deve ter deletado todos os dados do usuário nas tabelas correlacionadas
-      // 1. Deve deletar todas as transações (ganhos e gastos) vinculadas ao id do usuário
-      expect(supabase.from).toHaveBeenCalledWith('transactions');
-      
-      // 2. Deve deletar todos os agendamentos vinculados ao id do usuário
-      expect(supabase.from).toHaveBeenCalledWith('appointments');
-      
-      // 3. Deve deletar todos os clientes vinculados ao id do usuário
-      expect(supabase.from).toHaveBeenCalledWith('clients');
-      
-      // 4. Deve deletar o perfil do próprio usuário
-      expect(supabase.from).toHaveBeenCalledWith('profiles');
+      // A exclusão real do usuário em auth.users exige a service_role key, que só
+      // existe no servidor — por isso a tela NUNCA deve deletar dados diretamente
+      // pelo client; deve sempre passar pela Edge Function.
+      expect(supabase.functions.invoke).toHaveBeenCalledWith('delete-account');
 
-      // 5. Garante que as deleções filtram exatamente pelo id do usuário autenticado para não afetar outros usuários
-      expect(eqMock).toHaveBeenCalledWith('user_id', 'user-test-123');
-      expect(eqMock).toHaveBeenCalledWith('id', 'user-test-123');
-
-      // 6. Garante que efetua o sign out da sessão
+      // Garante que a sessão é encerrada após a exclusão bem-sucedida
       expect(supabase.auth.signOut).toHaveBeenCalled();
-      expect(mockSignOut).toHaveBeenCalled();
     });
   });
 });

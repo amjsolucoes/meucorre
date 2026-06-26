@@ -17,6 +17,7 @@ import * as z from 'zod';
 
 import { ScreenHeader } from '@/components/screen-header';
 import { Client, useClients } from '@/hooks/use-clients';
+import { getFriendlyErrorMessage } from '@/lib/errors';
 import { useUIStore } from '@/stores/ui';
 
 const clientSchema = z.object({
@@ -137,7 +138,7 @@ export default function EditarClienteScreen() {
       showAlert({
         type: 'error',
         title: 'Erro ao salvar',
-        message: error.message || 'Não foi possível atualizar o cliente.'
+        message: getFriendlyErrorMessage(error, 'Não foi possível atualizar o cliente.')
       });
     } finally {
       setLoading(false);

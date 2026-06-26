@@ -107,19 +107,12 @@ export function useProfile() {
 
   const deleteAccount = async () => {
     if (!user) throw new Error('Usuário não autenticado');
-    // Delete profile and all related data first
-    await supabase.from('profiles').delete().eq('id', user.id);
-    
-    // Try to delete user if admin is available (usually not on mobile client)
-    try {
-      if (supabase.auth.admin) {
-        await supabase.auth.admin.deleteUser(user.id);
-      }
-    } catch (e) {
-      console.warn('Could not delete user via admin API:', e);
-    }
 
-    // Fallback: sign out
+    // A exclusão real (dados + auth.users) exige a service_role key, que só
+    // existe no servidor — por isso roda numa Edge Function, não no client.
+    const { error } = await supabase.functions.invoke('delete-account');
+    if (error) throw error;
+
     await supabase.auth.signOut();
   };
 

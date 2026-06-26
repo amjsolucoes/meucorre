@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { escapeIlikeValue } from '../lib/postgrest-utils';
 import { supabase } from '../lib/supabase';
 import { useAuthStore } from '../stores/auth';
 
@@ -51,7 +52,8 @@ export function useTransactions(initialFilters: TransactionFilters = { type: 'al
       }
 
       if (filters.search) {
-        query = query.or(`title.ilike.%${filters.search}%,description.ilike.%${filters.search}%`);
+        const term = escapeIlikeValue(filters.search);
+        query = query.or(`title.ilike."%${term}%",description.ilike."%${term}%"`);
       }
 
       const { data, error } = await query;

@@ -17,6 +17,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as z from 'zod';
+import { getFriendlyErrorMessage } from '../../lib/errors';
 import { supabase } from '../../lib/supabase';
 import { useAuthStore } from '../../stores/auth';
 import { useUIStore } from '../../stores/ui';
@@ -180,7 +181,7 @@ export default function ResetPassword() {
       showAlert({
         type: 'error',
         title: 'Erro ao salvar',
-        message: error.message || 'Não conseguimos atualizar sua senha. Tente novamente.',
+        message: getFriendlyErrorMessage(error, 'Não conseguimos atualizar sua senha. Tente novamente.'),
       });
     } finally {
       setLoading(false);

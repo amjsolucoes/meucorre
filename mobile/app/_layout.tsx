@@ -1,3 +1,4 @@
+import { ErrorBoundary } from '@/components/error-boundary';
 import { ToastNotification } from '@/components/toast-notification';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { Stack } from 'expo-router';
@@ -8,7 +9,7 @@ import { useAuth } from '../hooks/use-auth';
 
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { debugListScheduledNotifications, requestNotificationPermission, setupAndroidNotificationChannel } from '@/hooks/use-notifications';
-import { initializeAdMob } from '@/lib/admob';
+import { initializeAdMob, requestAdsConsent } from '@/lib/admob';
 import * as Notifications from 'expo-notifications';
 import { useEffect, useRef, useState } from 'react';
 import SplashScreen from './splash';
@@ -25,8 +26,12 @@ export default function RootLayout() {
   const responseListener = useRef<Notifications.EventSubscription | null>(null);
 
   useEffect(() => {
-    // 0. Inicializa o AdMob
-    initializeAdMob();
+    // 0. Solicita consentimento (GDPR/LGPD) e só então inicializa o AdMob
+    requestAdsConsent().then((canRequestAds) => {
+      if (canRequestAds) {
+        initializeAdMob();
+      }
+    });
 
     // 1. Cria canal Android (obrigatório Android 8+)
     setupAndroidNotificationChannel();
@@ -80,18 +85,20 @@ export default function RootLayout() {
 
   return (
     <SafeAreaProvider>
-      <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-        <Stack screenOptions={{ headerShown: false }}>
-          <Stack.Screen name="(tabs)" />
-          <Stack.Screen name="(auth)" />
-          <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
-          <Stack.Screen name="cliente/[id]" />
-          <Stack.Screen name="importar-contatos" />
-          <Stack.Screen name="cliente/editar/[id]" />
-        </Stack>
-        <ToastNotification />
-        <StatusBar style="dark" />
-      </ThemeProvider>
+      <ErrorBoundary>
+        <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+          <Stack screenOptions={{ headerShown: false }}>
+            <Stack.Screen name="(tabs)" />
+            <Stack.Screen name="(auth)" />
+            <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
+            <Stack.Screen name="cliente/[id]" />
+            <Stack.Screen name="importar-contatos" />
+            <Stack.Screen name="cliente/editar/[id]" />
+          </Stack>
+          <ToastNotification />
+          <StatusBar style="dark" />
+        </ThemeProvider>
+      </ErrorBoundary>
     </SafeAreaProvider>
   );
 }

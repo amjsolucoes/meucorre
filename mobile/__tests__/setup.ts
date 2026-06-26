@@ -46,9 +46,9 @@ jest.mock('@/lib/supabase', () => {
         }),
         signOut: jest.fn().mockResolvedValue({ error: null }),
         updateUser: jest.fn().mockResolvedValue({ error: null }),
-        admin: {
-          deleteUser: jest.fn().mockResolvedValue({ error: null }),
-        },
+      },
+      functions: {
+        invoke: jest.fn().mockResolvedValue({ data: { success: true }, error: null }),
       },
     },
   };

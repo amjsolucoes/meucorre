@@ -3,13 +3,13 @@ import { View, Text, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { ScreenHeader } from '@/components/screen-header';
+import { useProfile } from '@/hooks/use-profile';
 import { useUIStore } from '@/stores/ui';
-import { useAuthStore } from '@/stores/auth';
-import { supabase } from '@/lib/supabase';
+import { getFriendlyErrorMessage } from '@/lib/errors';
 
 export default function ExcluirContaScreen() {
   const { showAlert } = useUIStore();
-  const { user, signOut } = useAuthStore();
+  const { deleteAccount } = useProfile();
   const [loading, setLoading] = useState(false);
 
   const handleDelete = () => {
@@ -23,21 +23,9 @@ export default function ExcluirContaScreen() {
       onConfirm: async () => {
         try {
           setLoading(true);
-          // Delete user data from tables
-          if (user) {
-            await supabase.from('transactions').delete().eq('user_id', user.id);
-            await supabase.from('appointments').delete().eq('user_id', user.id);
-            await supabase.from('clients').delete().eq('user_id', user.id);
-            await supabase.from('profiles').delete().eq('id', user.id);
-          }
-          try {
-            await supabase.auth.signOut();
-          } catch (err) {
-            console.error('Error signing out during account deletion:', err);
-          }
-          signOut();
+          await deleteAccount();
         } catch (e: any) {
-          showAlert({ type: 'error', title: 'Erro', message: e.message });
+          showAlert({ type: 'error', title: 'Erro', message: getFriendlyErrorMessage(e, 'Não foi possível excluir sua conta.') });
         } finally {
           setLoading(false);
         }

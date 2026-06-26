@@ -13,6 +13,7 @@ import { ScreenHeader } from '@/components/screen-header';
 import { useAppointments } from '@/hooks/use-appointments';
 import { Client, useClients } from '@/hooks/use-clients';
 import { useTransactions } from '@/hooks/use-transactions';
+import { getFriendlyErrorMessage } from '@/lib/errors';
 import { useUIStore } from '@/stores/ui';
 
 export default function DetalhesClienteScreen() {
@@ -80,7 +81,7 @@ export default function DetalhesClienteScreen() {
           await deleteClient(clientId);
           router.back();
         } catch (error: any) {
-          showAlert({ type: 'error', title: 'Erro', message: error.message });
+          showAlert({ type: 'error', title: 'Erro', message: getFriendlyErrorMessage(error, 'Não foi possível excluir o cliente.') });
         }
       }
     });

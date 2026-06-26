@@ -16,6 +16,9 @@ describe('useTransactions', () => {
       insert: jest.fn().mockResolvedValue({ error: null }),
       delete: jest.fn().mockReturnThis(),
       eq: jest.fn().mockReturnThis(),
+      gte: jest.fn().mockReturnThis(),
+      lte: jest.fn().mockReturnThis(),
+      or: jest.fn().mockReturnThis(),
       order: jest.fn().mockReturnThis(),
       then: jest.fn(resolve => resolve({ data, error }))
     };
@@ -53,5 +56,16 @@ describe('useTransactions', () => {
     });
 
     expect(supabase.from).toHaveBeenCalledWith('transactions');
+  });
+
+  it('escapa e envolve em aspas o termo de busca para não quebrar o filtro PostgREST', async () => {
+    const search = 'João, "VIP" (cliente)';
+    const { result } = renderHook(() => useTransactions({ type: 'all', search }));
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    const chain = (supabase.from as jest.Mock).mock.results[0].value;
+    expect(chain.or).toHaveBeenCalledWith(
+      'title.ilike."%João, \\"VIP\\" (cliente)%",description.ilike."%João, \\"VIP\\" (cliente)%"'
+    );
   });
 });

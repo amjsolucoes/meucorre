@@ -50,7 +50,7 @@ npm run build:prod         # eas build --profile production (asks for confirmati
 
 **Forms**: React Hook Form + Zod for every form (signup, login, client, transaction, etc.).
 
-**Supabase backend**: Tables `profiles`, `transactions`, `clients`, `appointments` (and optionally `receipts`). All are RLS-enabled, policies scoped to `auth.uid() = user_id` (or `= id` for `profiles`) — see `supabase/migrations/`. A `handle_new_user` trigger on `auth.users` auto-creates a `profiles` row on signup.
+**Supabase backend**: The Supabase project lives at the repo root (`../supabase/`), not inside `mobile/` — this repo is a monorepo with `mobile/` and `supabase/` as siblings. Tables `profiles`, `transactions`, `clients`, `appointments` (and optionally `receipts`). All are RLS-enabled, policies scoped to `auth.uid() = user_id` (or `= id` for `profiles`) — see `../supabase/migrations/`. A `handle_new_user` trigger on `auth.users` auto-creates a `profiles` row on signup. For local dev against a local Supabase instance instead of production, see the root `CLAUDE.md`.
 
 **Testing**: Jest + `jest-expo` + RNTL. `__tests__/setup.ts` is the global mock layer — it mocks `@/lib/supabase` (via a chainable fluent mock that resolves like postgrest-js, with a `_resolveWith()` helper to change the resolved value per test), `expo-router`, `expo-notifications`, `@/stores/auth`, and `@/hooks/use-notifications`. New hook tests should reuse/extend these mocks rather than re-mocking Supabase from scratch. `collectCoverageFrom` is limited to `hooks/`, `stores/`, `lib/`.
 

@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { eachDayOfInterval, format, isSameDay, startOfMonth, subMonths } from 'date-fns';
+import { eachDayOfInterval, format, isSameDay, startOfMonth } from 'date-fns';
 import { LinearGradient } from 'expo-linear-gradient';
 import React, { useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Dimensions, Platform, ScrollView, Text, TouchableOpacity, View } from 'react-native';
@@ -12,9 +12,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { ScreenHeader } from '../../components/screen-header';
 import { Theme } from '../../constants/theme';
 import { useExpenseCategories } from '../../hooks/use-expense-categories';
-import { useProfile } from '../../hooks/use-profile';
 import { useTransactions } from '../../hooks/use-transactions';
-import { useAuthStore } from '../../stores/auth';
 
 const { width } = Dimensions.get('window');
 
@@ -52,10 +50,10 @@ const CategoryBarChart = ({ data }: { data: any[] }) => {
               />
             </View>
             <View className="mt-3 items-center">
-              <Text className="text-[9px] font-black text-[#0D4F5C] uppercase text-center w-full" numberOfLines={1}>
+              <Text className="text-[11px] font-black text-[#0D4F5C] uppercase text-center w-full" numberOfLines={1}>
                 {item.label}
               </Text>
-              <Text className="text-[10px] font-bold text-text-secondary mt-0.5">
+              <Text className="text-[11px] font-bold text-text-secondary mt-0.5">
                 R${Math.round(item.value)}
               </Text>
             </View>
@@ -88,9 +86,7 @@ export default function RelatoriosScreen() {
     }
   };
 
-  const { user } = useAuthStore();
-  const { profile } = useProfile();
-  const { categories: expenseCategories = [], loading: loadingCats } = useExpenseCategories();
+  const { categories: expenseCategories = [] } = useExpenseCategories();
 
   const { transactions = [], loading, setFilters } = useTransactions({
     startDate: format(fromDate, 'yyyy-MM-dd'),
@@ -107,7 +103,7 @@ export default function RelatoriosScreen() {
         type: 'all'
       });
     }
-  }, [fromDate, toDate]);
+  }, [fromDate, toDate, setFilters]);
 
   // Cálculos de Resumo
   const stats = useMemo(() => {
@@ -128,25 +124,6 @@ export default function RelatoriosScreen() {
       pending
     };
   }, [transactions]);
-
-  // Dados para o Gráfico de Barras (Comparação Ganhos vs Gastos)
-  const barData = useMemo(() => [
-    {
-      value: stats.income,
-      label: 'Ganhos',
-      frontColor: '#7BC67A',
-      gradientColor: '#7BC67A',
-      spacing: 15,
-      labelTextStyle: {color: '#6B7F85', fontSize: 10, fontWeight: 'bold'},
-    },
-    {
-      value: stats.expense,
-      label: 'Gastos',
-      frontColor: '#E05555',
-      gradientColor: '#E05555',
-      labelTextStyle: {color: '#6B7F85', fontSize: 10, fontWeight: 'bold'},
-    }
-  ], [stats]);
 
   // Dados para o Gráfico de Barras por Categoria (Gastos)
   const categoryBarData = useMemo(() => {
@@ -190,7 +167,7 @@ export default function RelatoriosScreen() {
                   color="white" 
                 />
               </View>
-              <Text style={{ fontSize: 9, fontWeight: '900', color: '#0D4F5C' }}>
+              <Text style={{ fontSize: 11, fontWeight: '900', color: '#0D4F5C' }}>
                 R${Math.round(value)}
               </Text>
             </View>
@@ -240,7 +217,7 @@ export default function RelatoriosScreen() {
         if (!t.date) return false;
         try {
           return isSameDay(new Date(t.date), day);
-        } catch (e) {
+        } catch {
           return false;
         }
       });
@@ -300,7 +277,7 @@ export default function RelatoriosScreen() {
     barPercentage: 0.7,
     useShadowColorFromDataset: false,
     propsForLabels: {
-      fontSize: 10,
+      fontSize: 11,
       fontWeight: 'bold'
     }
   };
@@ -331,14 +308,6 @@ export default function RelatoriosScreen() {
     }));
   }, [pieData]);
 
-  const months = useMemo(() => {
-    const result = [];
-    for (let i = 0; i < 6; i++) {
-      result.push(subMonths(new Date(), i));
-    }
-    return result.reverse();
-  }, []);
-
   return (
     <SafeAreaView className="flex-1 bg-[#F8FAFB]" edges={['top']}>
       <ScreenHeader title="Inteligência Financeira" showBackButton={false} />
@@ -347,21 +316,27 @@ export default function RelatoriosScreen() {
         
         {/* Filtros Rápidos (Chips) */}
         <View className="px-6 mt-6 flex-row gap-2">
-          <TouchableOpacity 
+          <TouchableOpacity
             onPress={() => setFilter('month')}
             className={`px-5 py-2.5 rounded-full ${activeFilter === 'month' ? 'bg-[#0D4F5C]' : 'bg-white border border-divider/50'}`}
+            accessibilityLabel="Filtrar por mês atual"
+            accessibilityRole="button"
           >
             <Text className={`text-[11px] font-black uppercase ${activeFilter === 'month' ? 'text-white' : 'text-text-secondary'}`}>Mês Atual</Text>
           </TouchableOpacity>
-          <TouchableOpacity 
+          <TouchableOpacity
             onPress={() => setFilter('week')}
             className={`px-5 py-2.5 rounded-full ${activeFilter === 'week' ? 'bg-[#0D4F5C]' : 'bg-white border border-divider/50'}`}
+            accessibilityLabel="Filtrar por últimos 7 dias"
+            accessibilityRole="button"
           >
             <Text className={`text-[11px] font-black uppercase ${activeFilter === 'week' ? 'text-white' : 'text-text-secondary'}`}>Últimos 7 Dias</Text>
           </TouchableOpacity>
-          <TouchableOpacity 
+          <TouchableOpacity
             onPress={() => setActiveFilter('custom')}
             className={`px-5 py-2.5 rounded-full ${activeFilter === 'custom' ? 'bg-[#0D4F5C]' : 'bg-white border border-divider/50'}`}
+            accessibilityLabel="Filtrar por período customizado"
+            accessibilityRole="button"
           >
             <Text className={`text-[11px] font-black uppercase ${activeFilter === 'custom' ? 'text-white' : 'text-text-secondary'}`}>Customizado</Text>
           </TouchableOpacity>
@@ -371,17 +346,21 @@ export default function RelatoriosScreen() {
         {activeFilter === 'custom' && (
           <View className="px-6 mt-4">
             <View className="bg-white p-2.5 rounded-2xl flex-row items-center border border-divider/30 shadow-sm">
-              <TouchableOpacity 
+              <TouchableOpacity
                 onPress={() => setShowFromPicker(true)}
                 className="flex-1 flex-row items-center justify-center py-1.5"
+                accessibilityLabel={`Data inicial: ${format(fromDate, 'dd/MM/yy')}. Toque para alterar`}
+                accessibilityRole="button"
               >
                 <Ionicons name="calendar-outline" size={14} color="#0D4F5C" />
                 <Text className="ml-2 text-xs font-black text-text-primary">{format(fromDate, 'dd/MM/yy')}</Text>
               </TouchableOpacity>
               <View className="w-[1px] h-4 bg-divider" />
-              <TouchableOpacity 
+              <TouchableOpacity
                 onPress={() => setShowToPicker(true)}
                 className="flex-1 flex-row items-center justify-center py-1.5"
+                accessibilityLabel={`Data final: ${format(toDate, 'dd/MM/yy')}. Toque para alterar`}
+                accessibilityRole="button"
               >
                 <Ionicons name="calendar-outline" size={14} color="#0D4F5C" />
                 <Text className="ml-2 text-xs font-black text-text-primary">{format(toDate, 'dd/MM/yy')}</Text>
@@ -424,7 +403,7 @@ export default function RelatoriosScreen() {
           >
             <View className="z-10">
               <View className="flex-row items-center justify-between mb-2">
-                <Text className="text-white/70 font-bold text-[10px] uppercase tracking-[2px]">SALDO LÍQUIDO</Text>
+                <Text className="text-white/70 font-bold text-[11px] uppercase tracking-[2px]">SALDO LÍQUIDO</Text>
               </View>
               <Text className="text-white text-4xl font-black mb-6">
                 {stats.balance.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
@@ -434,7 +413,7 @@ export default function RelatoriosScreen() {
                 <View className="flex-1">
                   <View className="flex-row items-center mb-1">
                     <View className="w-1.5 h-1.5 bg-[#7BC67A] rounded-full mr-2" />
-                    <Text className="text-white/60 text-[9px] font-bold uppercase">GANHOS</Text>
+                    <Text className="text-white/60 text-[11px] font-bold uppercase">GANHOS</Text>
                   </View>
                   <Text className="text-white font-black text-lg">
                     {stats.income.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 })}
@@ -444,7 +423,7 @@ export default function RelatoriosScreen() {
                 <View className="flex-1">
                   <View className="flex-row items-center mb-1">
                     <View className="w-1.5 h-1.5 bg-[#E05555] rounded-full mr-2" />
-                    <Text className="text-white/60 text-[9px] font-bold uppercase">GASTOS</Text>
+                    <Text className="text-white/60 text-[11px] font-bold uppercase">GASTOS</Text>
                   </View>
                   <Text className="text-white font-black text-lg">
                     {stats.expense.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 })}
@@ -469,7 +448,7 @@ export default function RelatoriosScreen() {
             {/* Insights do Período */}
             <View className="px-6 mt-8 flex-row gap-4">
               <View className="flex-1 bg-white p-6 rounded-[28px] shadow-sm border border-divider/20">
-                <Text className="text-text-secondary font-black text-[9px] uppercase tracking-wider mb-2">MARGEM</Text>
+                <Text className="text-text-secondary font-black text-[11px] uppercase tracking-wider mb-2">MARGEM</Text>
                 <View className="flex-row items-end gap-1 mb-2">
                   <Text className="text-2xl font-black text-[#0D4F5C]">
                     {stats.income > 0 ? Math.round((stats.balance / stats.income) * 100) : 0}
@@ -481,11 +460,11 @@ export default function RelatoriosScreen() {
                 </View>
               </View>
               <View className="flex-1 bg-white p-6 rounded-[28px] shadow-sm border border-divider/20">
-                <Text className="text-text-secondary font-black text-[9px] uppercase tracking-wider mb-2">MÉDIA DIA</Text>
+                <Text className="text-text-secondary font-black text-[11px] uppercase tracking-wider mb-2">MÉDIA DIA</Text>
                 <Text className="text-2xl font-black text-[#0D4F5C] mb-1">
                   {(stats.income / (Math.max(1, eachDayOfInterval({ start: fromDate, end: toDate }).length))).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
                 </Text>
-                <Text className="text-[8px] font-black text-text-secondary uppercase">Reais / Dia</Text>
+                <Text className="text-[11px] font-black text-text-secondary uppercase">Reais / Dia</Text>
               </View>
             </View>
 
@@ -533,7 +512,7 @@ export default function RelatoriosScreen() {
                       <View className="w-8 h-8 bg-[#7BC67A]/10 rounded-full items-center justify-center mr-2">
                         <Ionicons name="people" size={16} color="#7BC67A" />
                       </View>
-                      <Text className="text-[10px] font-black text-text-primary uppercase tracking-tighter">Frequência</Text>
+                      <Text className="text-[11px] font-black text-text-primary uppercase tracking-tighter">Frequência</Text>
                     </View>
                     {clientStats.topByFrequency.map((item, index) => (
                       <View key={index} className="flex-row items-center justify-between mb-4 last:mb-0">
@@ -552,7 +531,7 @@ export default function RelatoriosScreen() {
                       <View className="w-8 h-8 bg-[#0D4F5C]/10 rounded-full items-center justify-center mr-2">
                         <Ionicons name="cash" size={16} color="#0D4F5C" />
                       </View>
-                      <Text className="text-[10px] font-black text-text-primary uppercase tracking-tighter">Receita</Text>
+                      <Text className="text-[11px] font-black text-text-primary uppercase tracking-tighter">Receita</Text>
                     </View>
                     {clientStats.topByRevenue.map((item, index) => (
                       <View key={index} className="flex-row items-center justify-between mb-4 last:mb-0">
@@ -560,7 +539,7 @@ export default function RelatoriosScreen() {
                           <View className="w-1.5 h-1.5 bg-[#0D4F5C] rounded-full mr-2" />
                           <Text className="text-text-primary font-bold text-[11px] flex-1" numberOfLines={1}>{item.name}</Text>
                         </View>
-                        <Text className="text-[#7BC67A] font-black text-[10px]">R${item.total > 1000 ? (item.total/1000).toFixed(1)+'k' : item.total.toFixed(0)}</Text>
+                        <Text className="text-[#7BC67A] font-black text-[11px]">R${item.total > 1000 ? (item.total/1000).toFixed(1)+'k' : item.total.toFixed(0)}</Text>
                       </View>
                     ))}
                   </View>
@@ -624,7 +603,7 @@ export default function RelatoriosScreen() {
                           <Text style={{ fontSize: 11, fontWeight: '700', color: '#3A4F55' }} numberOfLines={1}>
                             {item.name}
                           </Text>
-                          <Text style={{ fontSize: 10, fontWeight: '900', color: item.color }}>
+                          <Text style={{ fontSize: 11, fontWeight: '900', color: item.color }}>
                             {pct}%
                           </Text>
                         </View>
@@ -639,11 +618,11 @@ export default function RelatoriosScreen() {
             <View className="px-6 mt-8 flex-row gap-4">
               <View className="flex-1 bg-[#7BC67A]/10 p-7 rounded-[32px]">
                 <Text className="text-4xl font-black text-[#0D4F5C]">{stats.completed}</Text>
-                <Text className="text-text-secondary font-bold text-[10px] uppercase mt-1">CONCLUÍDOS</Text>
+                <Text className="text-text-secondary font-bold text-[11px] uppercase mt-1">CONCLUÍDOS</Text>
               </View>
               <View className="flex-1 bg-[#F0A500]/10 p-7 rounded-[32px]">
                 <Text className="text-4xl font-black text-[#0D4F5C]">{stats.pending}</Text>
-                <Text className="text-text-secondary font-bold text-[10px] uppercase mt-1">PENDENTES</Text>
+                <Text className="text-text-secondary font-bold text-[11px] uppercase mt-1">PENDENTES</Text>
               </View>
             </View>
 

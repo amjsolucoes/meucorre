@@ -112,7 +112,7 @@ export default function ResetPassword() {
     };
 
     handleDeepLink();
-  }, [url]);
+  }, [url, showAlert]);
 
   const { control, handleSubmit, formState: { errors } } = useForm<ResetPasswordFormData>({
     resolver: zodResolver(resetPasswordSchema),
@@ -136,7 +136,7 @@ export default function ResetPassword() {
       }
 
       // Chama a API oficial do SDK do Supabase de forma assíncrona, capturando qualquer erro
-      const { data: updateData, error: updateError } = await supabase.auth.updateUser({
+      const { error: updateError } = await supabase.auth.updateUser({
         password: data.password
       });
 
@@ -161,7 +161,7 @@ export default function ResetPassword() {
           supabase.auth.signOut(),
           new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), 1500))
         ]).catch(() => {});
-      } catch (e) {
+      } catch {
         // Silencia
       }
 
@@ -261,16 +261,24 @@ export default function ResetPassword() {
                       onChangeText={onChange}
                       placeholderTextColor="#A0B0B5"
                     />
-                    <TouchableOpacity onPress={() => setShowPass(!showPass)}>
+                    <TouchableOpacity
+                      onPress={() => setShowPass(!showPass)}
+                      hitSlop={{ top: 10, right: 10, bottom: 10, left: 10 }}
+                      accessibilityRole="button"
+                      accessibilityLabel={showPass ? 'Ocultar senha' : 'Mostrar senha'}
+                    >
                       <Ionicons name={showPass ? 'eye-off-outline' : 'eye-outline'} size={18} color="#A0B0B5" />
                     </TouchableOpacity>
                   </View>
                 )}
               />
               {errors.password && (
-                <Text style={{ color: '#E05555', fontSize: 11, fontWeight: '600', marginTop: 6, marginLeft: 4 }}>
-                  {errors.password.message}
-                </Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 6, marginLeft: 4, gap: 4 }}>
+                  <Ionicons name="alert-circle" size={13} color="#E05555" />
+                  <Text style={{ color: '#E05555', fontSize: 11, fontWeight: '600' }}>
+                    {errors.password.message}
+                  </Text>
+                </View>
               )}
             </View>
 
@@ -308,9 +316,12 @@ export default function ResetPassword() {
                 )}
               />
               {errors.confirmPassword && (
-                <Text style={{ color: '#E05555', fontSize: 11, fontWeight: '600', marginTop: 6, marginLeft: 4 }}>
-                  {errors.confirmPassword.message}
-                </Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 6, marginLeft: 4, gap: 4 }}>
+                  <Ionicons name="alert-circle" size={13} color="#E05555" />
+                  <Text style={{ color: '#E05555', fontSize: 11, fontWeight: '600' }}>
+                    {errors.confirmPassword.message}
+                  </Text>
+                </View>
               )}
             </View>
 
@@ -319,6 +330,9 @@ export default function ResetPassword() {
               disabled={loading}
               activeOpacity={0.85}
               style={{ borderRadius: 999, overflow: 'hidden' }}
+              accessibilityRole="button"
+              accessibilityLabel="Salvar nova senha"
+              accessibilityState={{ disabled: loading, busy: loading }}
             >
               <LinearGradient
                 colors={loading ? ['#C5D0D3', '#C5D0D3'] : ['#0D4F5C', '#1A6B7A']}

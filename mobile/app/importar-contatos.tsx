@@ -1,3 +1,4 @@
+import { ScreenHeader } from '@/components/screen-header';
 import { useClients } from '@/hooks/use-clients';
 import { PhoneContact, useContacts } from '@/hooks/use-contacts';
 import { usePagination } from '@/hooks/use-pagination';
@@ -117,7 +118,7 @@ export default function ImportarContatosScreen() {
             : `${success} cliente(s) importado(s) com sucesso!`,
         onConfirm: () => router.back(),
       });
-    } catch (err) {
+    } catch {
       showAlert({
         type: 'error',
         title: 'Erro na importação',
@@ -134,71 +135,42 @@ export default function ImportarContatosScreen() {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#F8FAFB' }} edges={['top']}>
       {/* Header */}
-      <View
-        style={{
-          paddingHorizontal: 20,
-          paddingVertical: 16,
-          backgroundColor: '#FFFFFF',
-          borderBottomWidth: 1,
-          borderBottomColor: '#E2E8EA',
-          flexDirection: 'row',
-          alignItems: 'center',
-          gap: 12,
-        }}
-      >
-        <TouchableOpacity
-          onPress={() => router.back()}
-          style={{
-            width: 40, height: 40, borderRadius: 12,
-            backgroundColor: '#F0F4F5',
-            alignItems: 'center', justifyContent: 'center',
-          }}
-          accessibilityLabel="Voltar"
-          accessibilityRole="button"
-        >
-          <Ionicons name="arrow-back" size={20} color="#0D4F5C" />
-        </TouchableOpacity>
-
-        <View style={{ flex: 1 }}>
-          <Text style={{ fontSize: 20, fontWeight: '800', color: '#0D4F5C' }}>
-            Importar Contatos
-          </Text>
-          {loaded && contacts.length > 0 && (
-            <Text style={{ fontSize: 12, color: '#6B7F85', fontWeight: '500', marginTop: 1 }}>
-              {contacts.length} contatos encontrados
-            </Text>
-          )}
-        </View>
-
-        {/* Botão importar */}
-        {selected.size > 0 && (
-          <TouchableOpacity
-            onPress={handleImport}
-            disabled={importing}
-            style={{
-              backgroundColor: '#0D4F5C',
-              paddingHorizontal: 16,
-              paddingVertical: 10,
-              borderRadius: 999,
-              flexDirection: 'row',
-              alignItems: 'center',
-              gap: 6,
-            }}
-            accessibilityLabel={`Importar ${selected.size} contatos`}
-            accessibilityRole="button"
-          >
-            {importing ? (
-              <ActivityIndicator size="small" color="#fff" />
-            ) : (
-              <>
-                <Ionicons name="download-outline" size={16} color="#fff" />
-                <Text style={{ color: '#fff', fontWeight: '800', fontSize: 13 }}>
-                  {selected.size}
-                </Text>
-              </>
-            )}
-          </TouchableOpacity>
-        )}
+      <View style={{ backgroundColor: '#FFFFFF', borderBottomWidth: 1, borderBottomColor: '#E2E8EA' }}>
+        <ScreenHeader
+          title="Importar Contatos"
+          subtitle={loaded && contacts.length > 0 ? `${contacts.length} contatos encontrados` : undefined}
+          rightElement={
+            selected.size > 0 ? (
+              <TouchableOpacity
+                onPress={handleImport}
+                disabled={importing}
+                hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
+                style={{
+                  backgroundColor: '#0D4F5C',
+                  paddingHorizontal: 16,
+                  paddingVertical: 10,
+                  borderRadius: 999,
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  gap: 6,
+                }}
+                accessibilityLabel={`Importar ${selected.size} contatos`}
+                accessibilityRole="button"
+              >
+                {importing ? (
+                  <ActivityIndicator size="small" color="#fff" />
+                ) : (
+                  <>
+                    <Ionicons name="download-outline" size={16} color="#fff" />
+                    <Text style={{ color: '#fff', fontWeight: '800', fontSize: 13 }}>
+                      {selected.size}
+                    </Text>
+                  </>
+                )}
+              </TouchableOpacity>
+            ) : undefined
+          }
+        />
       </View>
 
       {/* Estado inicial — ainda não carregou */}
@@ -393,7 +365,7 @@ export default function ImportarContatosScreen() {
                         paddingVertical: 4, borderRadius: 8,
                       }}
                     >
-                      <Text style={{ fontSize: 10, fontWeight: '700', color: '#0D4F5C' }}>
+                      <Text style={{ fontSize: 11, fontWeight: '700', color: '#0D4F5C' }}>
                         Já cadastrado
                       </Text>
                     </View>

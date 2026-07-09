@@ -85,7 +85,7 @@ export default function CorreEditScreen() {
     };
 
     fetchTransaction();
-  }, [id]);
+  }, [id, router, showAlert]);
 
   useEffect(() => {
     if (categories && categories.length > 0) {

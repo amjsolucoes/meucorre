@@ -45,7 +45,12 @@ const InputField = ({
       <Ionicons name={icon as any} size={18} color="#A0B0B5" style={{ marginRight: 10 }} />
       {children}
     </View>
-    {error && <Text style={{ color: '#E05555', fontSize: 11, fontWeight: '600', marginTop: 6, marginLeft: 4 }}>{error}</Text>}
+    {error && (
+      <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 6, marginLeft: 4, gap: 4 }}>
+        <Ionicons name="alert-circle" size={13} color="#E05555" />
+        <Text style={{ color: '#E05555', fontSize: 11, fontWeight: '600' }}>{error}</Text>
+      </View>
+    )}
   </View>
 );
 
@@ -68,7 +73,7 @@ export default function SignupScreen() {
         Animated.timing(opacity, { toValue: 1, duration: 350, useNativeDriver: true }),
       ]),
     ]).start();
-  }, []);
+  }, [logoScale, slideUp, opacity]);
 
   const { control, handleSubmit, formState: { errors } } = useForm<SignupData>({
     resolver: zodResolver(signupSchema),
@@ -78,7 +83,7 @@ export default function SignupScreen() {
   const onSignUp = async (data: SignupData) => {
     if (!agreedToTerms) {
       showAlert({
-        type: 'warning',
+        type: 'error',
         title: 'Aceite os termos',
         message: 'Você precisa aceitar a Política de Uso e Privacidade para criar sua conta.',
       });
@@ -207,11 +212,21 @@ export default function SignupScreen() {
                       placeholderTextColor="#A0B0B5"
                     />
                   )} />
-                  <TouchableOpacity onPress={() => setShowPass(!showPass)} hitSlop={{ top: 10, right: 10, bottom: 10, left: 10 }}>
+                  <TouchableOpacity
+                    onPress={() => setShowPass(!showPass)}
+                    hitSlop={{ top: 10, right: 10, bottom: 10, left: 10 }}
+                    accessibilityRole="button"
+                    accessibilityLabel={showPass ? 'Ocultar senha' : 'Mostrar senha'}
+                  >
                     <Ionicons name={showPass ? 'eye-off-outline' : 'eye-outline'} size={18} color="#A0B0B5" />
                   </TouchableOpacity>
                 </View>
-                {errors.password && <Text style={{ color: '#E05555', fontSize: 11, fontWeight: '600', marginTop: 6, marginLeft: 4 }}>{errors.password.message}</Text>}
+                {errors.password && (
+                  <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 6, marginLeft: 4, gap: 4 }}>
+                    <Ionicons name="alert-circle" size={13} color="#E05555" />
+                    <Text style={{ color: '#E05555', fontSize: 11, fontWeight: '600' }}>{errors.password.message}</Text>
+                  </View>
+                )}
               </View>
 
               {/* Aceite de termos */}
@@ -256,6 +271,9 @@ export default function SignupScreen() {
                 disabled={loading || !agreedToTerms}
                 activeOpacity={0.85}
                 style={{ borderRadius: 999, overflow: 'hidden' }}
+                accessibilityRole="button"
+                accessibilityLabel="Criar minha conta"
+                accessibilityState={{ disabled: loading || !agreedToTerms, busy: loading }}
               >
                 <LinearGradient
                   colors={
@@ -278,6 +296,8 @@ export default function SignupScreen() {
                 onPress={() => router.replace('/(auth)/login')}
                 style={{ paddingVertical: 16, alignItems: 'center' }}
                 activeOpacity={0.7}
+                accessibilityRole="button"
+                accessibilityLabel="Já tem conta? Fazer login"
               >
                 <Text style={{ fontSize: 14, color: '#6B7F85', fontWeight: '600' }}>
                   Já tem conta?{' '}

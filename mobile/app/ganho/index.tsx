@@ -20,7 +20,7 @@ export default function NovoGanhoScreen() {
   const router = useRouter();
   const { addTransaction } = useTransactions();
   const { clients, loading: loadingClients } = useClients();
-  const { profile, loading: loadingProfile } = useProfile();
+  const { profile } = useProfile();
   const { user } = useAuthStore();
   
   const [loading, setLoading] = useState(false);
@@ -130,7 +130,7 @@ export default function NovoGanhoScreen() {
 
         {/* Amount Card flutuante */}
         <View style={{ paddingHorizontal: 20, paddingBottom: 28, alignItems: 'center' }}>
-          <Text style={{ fontSize: 10, fontWeight: '800', color: 'rgba(255,255,255,0.6)', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 8 }}>
+          <Text style={{ fontSize: 11, fontWeight: '800', color: 'rgba(255,255,255,0.6)', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 8 }}>
             VALOR DO GANHO
           </Text>
           <MaskInput

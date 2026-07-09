@@ -31,7 +31,9 @@ export default function PoliticaUsoScreen() {
               alignItems: 'center',
               justifyContent: 'center',
             }}
+            hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
             accessibilityLabel="Voltar"
+            accessibilityRole="button"
           >
             <Ionicons name="arrow-back" size={20} color="#0D4F5C" />
           </TouchableOpacity>
@@ -129,7 +131,7 @@ export default function PoliticaUsoScreen() {
               5. Limitação de Responsabilidade
             </Text>
             <Text style={{ fontSize: 14, fontWeight: '400', color: '#3A4F55', lineHeight: 22 }}>
-              O app é fornecido "como está". Não garantimos que o serviço será ininterrupto ou livre de erros. Não nos responsabilizamos por danos diretos ou indiretos causados pelo uso do app.
+              O app é fornecido &quot;como está&quot;. Não garantimos que o serviço será ininterrupto ou livre de erros. Não nos responsabilizamos por danos diretos ou indiretos causados pelo uso do app.
             </Text>
           </View>
 

@@ -113,7 +113,7 @@ export default function NovoClienteScreen() {
         setValue('address_city', data.localidade);
         setValue('address_state', data.uf);
       }
-    } catch (error) {
+    } catch {
       showAlert({
         type: 'error',
         title: 'Erro de conexão',
@@ -141,7 +141,7 @@ export default function NovoClienteScreen() {
             
             {/* Seção Informações Básicas */}
             <View style={{ gap: 12 }}>
-              <Text style={{ fontSize: 10, fontWeight: '800', color: '#6B7F85', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 4, marginLeft: 4 }}>
+              <Text style={{ fontSize: 11, fontWeight: '800', color: '#6B7F85', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 4, marginLeft: 4 }}>
                 Informações Básicas
               </Text>
               
@@ -167,7 +167,12 @@ export default function NovoClienteScreen() {
                     </View>
                   )}
                 />
-                {errors.name && <Text style={{ color: '#E05555', fontSize: 11, fontWeight: '700', marginTop: 4, marginLeft: 6 }}>{errors.name.message}</Text>}
+                {errors.name && (
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 4, marginLeft: 6 }}>
+                    <Ionicons name="alert-circle" size={13} color="#E05555" />
+                    <Text style={{ color: '#E05555', fontSize: 11, fontWeight: '700' }}>{errors.name.message}</Text>
+                  </View>
+                )}
               </View>
 
               {/* WhatsApp / Celular */}
@@ -200,7 +205,12 @@ export default function NovoClienteScreen() {
                     </View>
                   )}
                 />
-                {errors.phone && <Text style={{ color: '#E05555', fontSize: 11, fontWeight: '700', marginTop: 4, marginLeft: 6 }}>{errors.phone.message}</Text>}
+                {errors.phone && (
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 4, marginLeft: 6 }}>
+                    <Ionicons name="alert-circle" size={13} color="#E05555" />
+                    <Text style={{ color: '#E05555', fontSize: 11, fontWeight: '700' }}>{errors.phone.message}</Text>
+                  </View>
+                )}
               </View>
 
               {/* WhatsApp Toggle Switch */}
@@ -219,9 +229,12 @@ export default function NovoClienteScreen() {
                   control={control}
                   name="is_whatsapp"
                   render={({ field: { onChange, value } }) => (
-                    <TouchableOpacity 
+                    <TouchableOpacity
                       onPress={() => onChange(!value)}
                       activeOpacity={0.8}
+                      accessibilityRole="switch"
+                      accessibilityLabel="Este número é WhatsApp?"
+                      accessibilityState={{ checked: value }}
                       style={{
                         width: 50, height: 28, borderRadius: 15,
                         backgroundColor: value ? '#7BC67A' : '#D0D9DC',
@@ -267,7 +280,7 @@ export default function NovoClienteScreen() {
 
             {/* Seção Endereço */}
             <View style={{ gap: 12 }}>
-              <Text style={{ fontSize: 10, fontWeight: '800', color: '#6B7F85', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 4, marginLeft: 4 }}>
+              <Text style={{ fontSize: 11, fontWeight: '800', color: '#6B7F85', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 4, marginLeft: 4 }}>
                 Onde Mora?
               </Text>
               
@@ -297,10 +310,12 @@ export default function NovoClienteScreen() {
                     )}
                   />
                 </View>
-                <TouchableOpacity 
+                <TouchableOpacity
                   onPress={handleCEPChange}
                   disabled={isSearchingCEP}
                   activeOpacity={0.8}
+                  accessibilityRole="button"
+                  accessibilityLabel="Buscar endereço pelo CEP"
                   style={{
                     backgroundColor: '#0D4F5C', width: 56, height: 56,
                     borderRadius: 14, alignItems: 'center', justifyContent: 'center',
@@ -314,7 +329,12 @@ export default function NovoClienteScreen() {
                   )}
                 </TouchableOpacity>
               </View>
-              {errors.address_zipcode && <Text style={{ color: '#E05555', fontSize: 11, fontWeight: '700', marginLeft: 6 }}>{errors.address_zipcode.message}</Text>}
+              {errors.address_zipcode && (
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, marginLeft: 6 }}>
+                  <Ionicons name="alert-circle" size={13} color="#E05555" />
+                  <Text style={{ color: '#E05555', fontSize: 11, fontWeight: '700' }}>{errors.address_zipcode.message}</Text>
+                </View>
+              )}
 
               {/* Rua */}
               <View>
@@ -336,7 +356,12 @@ export default function NovoClienteScreen() {
                     </View>
                   )}
                 />
-                {errors.address_street && <Text style={{ color: '#E05555', fontSize: 11, fontWeight: '700', marginTop: 4, marginLeft: 6 }}>{errors.address_street.message}</Text>}
+                {errors.address_street && (
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 4, marginLeft: 6 }}>
+                    <Ionicons name="alert-circle" size={13} color="#E05555" />
+                    <Text style={{ color: '#E05555', fontSize: 11, fontWeight: '700' }}>{errors.address_street.message}</Text>
+                  </View>
+                )}
               </View>
 
               {/* Número e Bairro */}
@@ -360,7 +385,7 @@ export default function NovoClienteScreen() {
                       </View>
                     )}
                   />
-                  {errors.address_number && <Text style={{ color: '#E05555', fontSize: 10, fontWeight: '700', marginTop: 4, textAlign: 'center' }}>Obrigatório</Text>}
+                  {errors.address_number && <Text style={{ color: '#E05555', fontSize: 11, fontWeight: '700', marginTop: 4, textAlign: 'center' }}>Obrigatório</Text>}
                 </View>
                 <View style={{ flex: 1 }}>
                   <Controller
@@ -381,7 +406,12 @@ export default function NovoClienteScreen() {
                       </View>
                     )}
                   />
-                  {errors.address_neighborhood && <Text style={{ color: '#E05555', fontSize: 11, fontWeight: '700', marginTop: 4, marginLeft: 6 }}>{errors.address_neighborhood.message}</Text>}
+                  {errors.address_neighborhood && (
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 4, marginLeft: 6 }}>
+                      <Ionicons name="alert-circle" size={13} color="#E05555" />
+                      <Text style={{ color: '#E05555', fontSize: 11, fontWeight: '700' }}>{errors.address_neighborhood.message}</Text>
+                    </View>
+                  )}
                 </View>
               </View>
 
@@ -434,7 +464,7 @@ export default function NovoClienteScreen() {
 
             {/* Notas / Observações */}
             <View style={{ gap: 12 }}>
-              <Text style={{ fontSize: 10, fontWeight: '800', color: '#6B7F85', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 4, marginLeft: 4 }}>
+              <Text style={{ fontSize: 11, fontWeight: '800', color: '#6B7F85', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 4, marginLeft: 4 }}>
                 Observações (Opcional)
               </Text>
               <Controller
@@ -460,10 +490,12 @@ export default function NovoClienteScreen() {
             </View>
 
             {/* Botão Salvar */}
-            <TouchableOpacity 
+            <TouchableOpacity
               onPress={handleSubmit(onSubmit)}
               disabled={loading}
               activeOpacity={0.85}
+              accessibilityRole="button"
+              accessibilityLabel="Salvar cliente"
               style={{
                 borderRadius: 999, overflow: 'hidden', marginTop: 12,
                 shadowColor: '#0D4F5C', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.25, shadowRadius: 16, elevation: 8

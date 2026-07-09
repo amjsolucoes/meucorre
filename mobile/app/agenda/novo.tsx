@@ -46,7 +46,7 @@ export default function NovoAgendamento() {
   const [clientSearch, setClientSearch] = useState('');
   const [selectedProfession, setSelectedProfession] = useState<string>('');
 
-  const { control, handleSubmit, setValue, watch, formState: { errors } } = useForm<AppointmentFormData>({
+  const { control, handleSubmit, watch, formState: { errors } } = useForm<AppointmentFormData>({
     resolver: zodResolver(appointmentSchema),
     defaultValues: {
       service: '',
@@ -129,7 +129,7 @@ export default function NovoAgendamento() {
         ? `[Profissão: ${selectedProfession}]${data.notes ? '\n\n' + data.notes : ''}`
         : data.notes;
 
-      await addAppointment({
+      const result = await addAppointment({
         service: data.service?.trim() || null,
         scheduled_at: date.toISOString(),
         price: numericPrice,
@@ -142,13 +142,22 @@ export default function NovoAgendamento() {
 
       const firstName = profile?.name?.split(' ')[0] || user?.user_metadata?.name?.split(' ')[0] || 'Guerreiro';
 
-      showAlert({
-        type: 'success',
-        title: `Tudo pronto, ${firstName}!`,
-        message: 'O compromisso foi salvo na sua agenda.',
-        onConfirm: () => router.replace('/(tabs)/agenda')
-      });
-    } catch (error: any) {
+      if (result?.reminderFailed) {
+        showAlert({
+          type: 'info',
+          title: `Tudo pronto, ${firstName}!`,
+          message: 'O compromisso foi salvo, mas não conseguimos ativar o lembrete (verifique a permissão de notificações do app). Você pode reativar editando o agendamento.',
+          onConfirm: () => router.replace('/(tabs)/agenda')
+        });
+      } else {
+        showAlert({
+          type: 'success',
+          title: `Tudo pronto, ${firstName}!`,
+          message: 'O compromisso foi salvo na sua agenda.',
+          onConfirm: () => router.replace('/(tabs)/agenda')
+        });
+      }
+    } catch {
       showAlert({
         type: 'error',
         title: 'Opa!',
@@ -189,7 +198,7 @@ export default function NovoAgendamento() {
           {/* Card de Valor (Estimado) */}
           <View className="bg-surface rounded-[14px] overflow-hidden mb-6 shadow-sm">
             <View className="p-8 items-center bg-surface">
-              <Text className="text-text-secondary font-bold text-[10px] uppercase tracking-wider mb-2">VALOR COMBINADO (OPCIONAL)</Text>
+              <Text className="text-text-secondary font-bold text-[11px] uppercase tracking-wider mb-2">VALOR COMBINADO (OPCIONAL)</Text>
               <Controller
                 control={control}
                 name="price"
@@ -210,10 +219,12 @@ export default function NovoAgendamento() {
 
           {/* Seleção de Cliente */}
           <View className="mb-5">
-            <Text className="text-text-secondary font-bold text-[10px] uppercase tracking-wider mb-2 ml-1">QUEM É O CLIENTE?</Text>
-            <TouchableOpacity 
+            <Text className="text-text-secondary font-bold text-[11px] uppercase tracking-wider mb-2 ml-1">QUEM É O CLIENTE?</Text>
+            <TouchableOpacity
               onPress={() => setShowClientModal(true)}
               activeOpacity={0.7}
+              accessibilityRole="button"
+              accessibilityLabel={selectedClient ? `Cliente selecionado: ${selectedClient.name}. Toque para trocar` : 'Selecionar cliente'}
               className="bg-surface p-4 rounded-[14px] flex-row items-center justify-between shadow-sm"
             >
               {selectedClient ? (
@@ -241,7 +252,7 @@ export default function NovoAgendamento() {
           {/* Seleção de Profissão / Serviço */}
           {professions.length > 0 && (
             <View className="mb-5">
-              <Text className="text-text-secondary font-bold text-[10px] uppercase tracking-wider mb-2 ml-1">QUAL PROFISSÃO DESTE SERVIÇO?</Text>
+              <Text className="text-text-secondary font-bold text-[11px] uppercase tracking-wider mb-2 ml-1">QUAL PROFISSÃO DESTE SERVIÇO?</Text>
               <ScrollView 
                 horizontal 
                 showsHorizontalScrollIndicator={false} 
@@ -278,7 +289,7 @@ export default function NovoAgendamento() {
 
           {/* Serviço */}
           <View className="mb-5">
-            <Text className="text-text-secondary font-bold text-[10px] uppercase tracking-wider mb-2 ml-1">O QUE SERÁ FEITO? (OPCIONAL SE TIVER PROFISSÃO)</Text>
+            <Text className="text-text-secondary font-bold text-[11px] uppercase tracking-wider mb-2 ml-1">O QUE SERÁ FEITO? (OPCIONAL SE TIVER PROFISSÃO)</Text>
             <Controller
               control={control}
               name="service"
@@ -298,7 +309,7 @@ export default function NovoAgendamento() {
           {/* Data e Hora */}
           <View className="flex-row mb-5 gap-4">
             <View className="flex-1">
-              <Text className="text-text-secondary font-bold text-[10px] uppercase tracking-wider mb-2 ml-1">QUANDO?</Text>
+              <Text className="text-text-secondary font-bold text-[11px] uppercase tracking-wider mb-2 ml-1">QUANDO?</Text>
               <TouchableOpacity 
                 onPress={() => setShowDatePicker(true)}
                 className="bg-surface p-4 rounded-[14px] flex-row items-center justify-between shadow-sm"
@@ -311,7 +322,7 @@ export default function NovoAgendamento() {
             </View>
 
             <View className="flex-1">
-              <Text className="text-text-secondary font-bold text-[10px] uppercase tracking-wider mb-2 ml-1">QUE HORAS?</Text>
+              <Text className="text-text-secondary font-bold text-[11px] uppercase tracking-wider mb-2 ml-1">QUE HORAS?</Text>
               <TouchableOpacity 
                 onPress={() => setShowTimePicker(true)}
                 className="bg-surface p-4 rounded-[14px] flex-row items-center justify-between shadow-sm"
@@ -372,7 +383,7 @@ export default function NovoAgendamento() {
 
             {watch('notification_enabled') && (
               <View className="mt-4 pt-4 border-t border-[#E2E8EA]/50">
-                <Text className="text-text-secondary font-bold text-[10px] uppercase tracking-wider mb-2.5 ml-1">QUANTO TEMPO ANTES?</Text>
+                <Text className="text-text-secondary font-bold text-[11px] uppercase tracking-wider mb-2.5 ml-1">QUANTO TEMPO ANTES?</Text>
                 <Controller
                   control={control}
                   name="notification_trigger_minutes"
@@ -410,7 +421,7 @@ export default function NovoAgendamento() {
 
           {/* Observações */}
           <View className="mb-6">
-            <Text className="text-text-secondary font-bold text-[10px] uppercase tracking-wider mb-2 ml-1">RECADO / OBSERVAÇÃO</Text>
+            <Text className="text-text-secondary font-bold text-[11px] uppercase tracking-wider mb-2 ml-1">RECADO / OBSERVAÇÃO</Text>
             <Controller
               control={control}
               name="notes"

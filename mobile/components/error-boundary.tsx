@@ -33,10 +33,10 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
     if (this.state.hasError) {
       return (
         <View className="flex-1 items-center justify-center bg-white px-8">
-          <Text className="text-xl font-bold text-gray-900 text-center mb-3">
+          <Text className="text-xl font-bold text-[#1A1A1A] text-center mb-3">
             Ops! Algo deu errado.
           </Text>
-          <Text className="text-base text-gray-500 text-center mb-8">
+          <Text className="text-base text-[#6B7F85] text-center mb-8">
             Não se preocupe, seus dados estão salvos. Tente novamente.
           </Text>
           <TouchableOpacity
@@ -44,7 +44,7 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
             accessibilityLabel="Tentar novamente"
             onPress={this.handleRetry}
             activeOpacity={0.8}
-            className="bg-[#4D5DFB] py-4 px-10 rounded-2xl"
+            className="bg-[#0D4F5C] py-4 px-10 rounded-2xl"
           >
             <Text className="text-white text-base font-bold">Tentar novamente</Text>
           </TouchableOpacity>

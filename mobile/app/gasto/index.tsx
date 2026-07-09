@@ -64,7 +64,7 @@ export default function NovoGasto() {
 
   useEffect(() => {
     fetchClients();
-  }, []);
+  }, [fetchClients]);
 
   const onSubmit = async (data: GastoFormData) => {
     try {
@@ -94,7 +94,7 @@ export default function NovoGasto() {
         message: 'Seu gasto foi registrado com sucesso.',
         onConfirm: () => router.back()
       });
-    } catch (error: any) {
+    } catch {
       showAlert({
         type: 'error',
         title: 'Erro ao Salvar',
@@ -109,14 +109,14 @@ export default function NovoGasto() {
     <SafeAreaView style={{ flex: 1, backgroundColor: '#FFFFFF' }} edges={['top']}>
       {/* Hero Header */}
       <LinearGradient
-        colors={['#E05555', '#D04444']}
+        colors={['#E05555', '#E05555']}
         start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
       >
         <ScreenHeader title="Novo Gasto" subtitle="Registre suas despesas" transparent />
 
         {/* Amount Card flutuante */}
         <View style={{ paddingHorizontal: 20, paddingBottom: 28, alignItems: 'center' }}>
-          <Text style={{ fontSize: 10, fontWeight: '800', color: 'rgba(255,255,255,0.6)', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 8 }}>
+          <Text style={{ fontSize: 11, fontWeight: '800', color: 'rgba(255,255,255,0.6)', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 8 }}>
             VALOR DO GASTO
           </Text>
           <Controller
@@ -340,7 +340,7 @@ export default function NovoGasto() {
             accessibilityLabel="Salvar gasto"
           >
             <LinearGradient
-              colors={loading ? ['#C5D0D3', '#C5D0D3'] : ['#E05555', '#D04444']}
+              colors={loading ? ['#C5D0D3', '#C5D0D3'] : ['#E05555', '#E05555']}
               start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
               style={{ height: 58, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 10 }}
             >

@@ -40,7 +40,7 @@ export default function SplashScreen() {
         easing: Easing.inOut(Easing.ease),
       })
     );
-  }, []);
+  }, [opacity1, opacity2, scale1, scale2]);
 
   const animatedStyle1 = useAnimatedStyle(() => ({
     opacity: opacity1.value,

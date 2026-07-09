@@ -55,7 +55,7 @@ export default function AgendaScreen() {
   useFocusEffect(
     React.useCallback(() => {
       fetchAppointments();
-    }, [])
+    }, [fetchAppointments])
   );
   
   const [activeTab, setActiveTab] = useState<'All' | 'Scheduled' | 'Completed' | 'Cancelled'>('Scheduled');
@@ -102,7 +102,17 @@ export default function AgendaScreen() {
         title: 'Serviço Concluído!',
         message: 'O valor foi adicionado aos seus ganhos automaticamente.'
       });
-    } catch (error) {
+    } catch (error: any) {
+      if (error?.message === 'APPOINTMENT_COMPLETED_TRANSACTION_FAILED') {
+        setShowCompleteModal(false);
+        setShowDetailModal(false);
+        showAlert({
+          type: 'error',
+          title: 'Corre concluído, mas...',
+          message: 'O agendamento foi marcado como concluído, mas não conseguimos registrar o ganho automaticamente. Registre esse valor manualmente na tela de Ganhos.'
+        });
+        return;
+      }
       showAlert({
         type: 'error',
         title: 'Erro',
@@ -125,7 +135,7 @@ export default function AgendaScreen() {
             title: 'Cancelado',
             message: 'O agendamento foi marcado como cancelado.'
           });
-        } catch (error) {
+        } catch {
           showAlert({
             type: 'error',
             title: 'Erro',
@@ -169,7 +179,7 @@ export default function AgendaScreen() {
               />
             </View>
             <View>
-              <Text className="text-text-secondary font-bold text-[10px] uppercase tracking-wider">Visualizando</Text>
+              <Text className="text-text-secondary font-bold text-[11px] uppercase tracking-wider">Visualizando</Text>
               <Text className="text-text-primary font-black text-lg">
                 {activeTab === 'Scheduled' ? 'Próximos' :
                  activeTab === 'Completed' ? 'Feitos' :
@@ -227,9 +237,9 @@ export default function AgendaScreen() {
               }}
               activeOpacity={0.7}
               className={`px-4 py-4 rounded-[20px] mb-4 ${
-                item.status === 'completed' ? 'bg-[#E8F5E9]' :
-                item.status === 'cancelled' ? 'bg-[#FFEBEE]' : 
-                'bg-[#E0F2F7]'
+                item.status === 'completed' ? 'bg-[#7BC67A]/10' :
+                item.status === 'cancelled' ? 'bg-[#E05555]/10' :
+                'bg-[#0D4F5C]/10'
               }`}
               style={{
                 shadowColor: '#000',
@@ -247,7 +257,7 @@ export default function AgendaScreen() {
                   item.status === 'completed' ? 'bg-[#7BC67A]/20' :
                   item.status === 'cancelled' ? 'bg-[#E05555]/20' : 'bg-[#0D4F5C]/15'
                 }`}>
-                  <Text className={`font-black text-[10px] uppercase tracking-wider ${
+                  <Text className={`font-black text-[11px] uppercase tracking-wider ${
                     item.status === 'completed' ? 'text-[#7BC67A]' :
                     item.status === 'cancelled' ? 'text-[#E05555]' : 'text-[#0D4F5C]'
                   }`}>
@@ -278,7 +288,7 @@ export default function AgendaScreen() {
                     <Ionicons name="person" size={14} color="#0D4F5C" />
                   </View>
                   <View className="flex-1">
-                    <Text className="text-[10px] text-text-secondary font-bold uppercase tracking-wide">Cliente</Text>
+                    <Text className="text-[11px] text-text-secondary font-bold uppercase tracking-wide">Cliente</Text>
                     <Text className="text-sm font-black text-text-primary" numberOfLines={1}>
                       {item.clients?.name || 'Não identificado'}
                     </Text>
@@ -292,7 +302,7 @@ export default function AgendaScreen() {
                       <Ionicons name="calendar" size={14} color="#0D4F5C" />
                     </View>
                     <View>
-                      <Text className="text-[10px] text-text-secondary font-bold uppercase tracking-wide">Data</Text>
+                      <Text className="text-[11px] text-text-secondary font-bold uppercase tracking-wide">Data</Text>
                       <Text className="text-sm font-black text-text-primary">
                         {format(new Date(item.scheduled_at), "dd/MM/yy")}
                       </Text>
@@ -304,7 +314,7 @@ export default function AgendaScreen() {
                       <Ionicons name="time" size={14} color="#0D4F5C" />
                     </View>
                     <View>
-                      <Text className="text-[10px] text-text-secondary font-bold uppercase tracking-wide">Hora</Text>
+                      <Text className="text-[11px] text-text-secondary font-bold uppercase tracking-wide">Hora</Text>
                       <Text className="text-sm font-black text-text-primary">
                         {format(new Date(item.scheduled_at), "HH:mm")}
                       </Text>
@@ -318,7 +328,7 @@ export default function AgendaScreen() {
                 {item.price > 0 && (
                   <View className="flex-1 bg-[#7BC67A]/15 rounded-[10px] px-3 py-2 flex-row items-center justify-between">
                     <View>
-                      <Text className="text-[9px] text-[#0D4F5C] font-bold uppercase tracking-wide">Valor</Text>
+                      <Text className="text-[11px] text-[#0D4F5C] font-bold uppercase tracking-wide">Valor</Text>
                       <Text className="text-base font-black text-[#7BC67A]">
                         R$ {item.price.toFixed(2).replace('.', ',')}
                       </Text>
@@ -331,7 +341,7 @@ export default function AgendaScreen() {
                   <View className="bg-[#0D4F5C]/10 rounded-[10px] px-3 py-2 flex-row items-center gap-2">
                     <Ionicons name="notifications" size={16} color="#0D4F5C" />
                     <View>
-                      <Text className="text-[9px] text-text-secondary font-bold uppercase tracking-wide">Lembrete</Text>
+                      <Text className="text-[11px] text-text-secondary font-bold uppercase tracking-wide">Lembrete</Text>
                       <Text className="text-xs font-black text-[#0D4F5C]">{notifLabel}</Text>
                     </View>
                   </View>
@@ -414,7 +424,11 @@ export default function AgendaScreen() {
           <View className="bg-white rounded-t-[20px] p-8 shadow-2xl">
             <View className="flex-row justify-between items-center mb-6">
               <Text className="text-2xl font-black text-text-primary">Filtrar Agenda</Text>
-              <TouchableOpacity onPress={() => setShowFilterModal(false)}>
+              <TouchableOpacity
+                onPress={() => setShowFilterModal(false)}
+                accessibilityLabel="Fechar filtro"
+                accessibilityRole="button"
+              >
                 <Ionicons name="close-circle" size={32} color="#A0B0B5" />
               </TouchableOpacity>
             </View>
@@ -428,13 +442,15 @@ export default function AgendaScreen() {
               ].map((filter) => {
                 const isActive = activeTab === filter.id;
                 return (
-                  <TouchableOpacity 
+                  <TouchableOpacity
                     key={filter.id}
                     onPress={() => {
                       setActiveTab(filter.id as any);
                       setShowFilterModal(false);
                     }}
                     className={`p-4 rounded-[14px] flex-row items-center ${isActive ? 'bg-surface shadow-sm' : 'bg-white shadow-sm'}`}
+                    accessibilityLabel={`Filtrar por ${filter.label}`}
+                    accessibilityRole="button"
                   >
                     <View 
                       style={{ backgroundColor: filter.bg }}
@@ -464,7 +480,11 @@ export default function AgendaScreen() {
           <View className="bg-white rounded-t-[20px] p-8 h-[85%] shadow-2xl">
             <View className="flex-row justify-between items-center mb-6">
               <Text className="text-2xl font-black text-text-primary">Detalhes</Text>
-              <TouchableOpacity onPress={() => setShowDetailModal(false)}>
+              <TouchableOpacity
+                onPress={() => setShowDetailModal(false)}
+                accessibilityLabel="Fechar detalhes"
+                accessibilityRole="button"
+              >
                 <Ionicons name="close-circle" size={32} color="#A0B0B5" />
               </TouchableOpacity>
             </View>
@@ -477,7 +497,7 @@ export default function AgendaScreen() {
                       selectedAppointment.status === 'completed' ? 'bg-[#7BC67A]/10' : 
                       selectedAppointment.status === 'cancelled' ? 'bg-[#E05555]/10' : 'bg-[#0D4F5C]/10'
                     }`}>
-                      <Text className={`font-black text-[9px] uppercase tracking-wider ${
+                      <Text className={`font-black text-[11px] uppercase tracking-wider ${
                         selectedAppointment.status === 'completed' ? 'text-[#7BC67A]' : 
                         selectedAppointment.status === 'cancelled' ? 'text-[#E05555]' : 'text-[#0D4F5C]'
                       }`}>
@@ -497,7 +517,7 @@ export default function AgendaScreen() {
                         </Text>
                       </View>
                       <View>
-                        <Text className="text-text-secondary font-bold text-[10px] uppercase tracking-wider">Cliente</Text>
+                        <Text className="text-text-secondary font-bold text-[11px] uppercase tracking-wider">Cliente</Text>
                         <Text className="text-text-primary font-black text-base">
                           {selectedAppointment.clients?.name || 'Não identificado'}
                         </Text>
@@ -507,14 +527,14 @@ export default function AgendaScreen() {
                     <View className="flex-row mt-4 gap-4">
                       <View className="flex-1 bg-surface p-3.5 rounded-[12px] items-center shadow-sm">
                         <Ionicons name="calendar-outline" size={18} color="#6B7F85" />
-                        <Text className="text-text-secondary font-bold text-[9px] uppercase mt-1">Data</Text>
+                        <Text className="text-text-secondary font-bold text-[11px] uppercase mt-1">Data</Text>
                         <Text className="text-text-primary font-black text-sm mt-0.5">
                           {format(new Date(selectedAppointment.scheduled_at), "dd/MM/yy")}
                         </Text>
                       </View>
                       <View className="flex-1 bg-surface p-3.5 rounded-[12px] items-center shadow-sm">
                         <Ionicons name="time-outline" size={18} color="#6B7F85" />
-                        <Text className="text-text-secondary font-bold text-[9px] uppercase mt-1">Hora</Text>
+                        <Text className="text-text-secondary font-bold text-[11px] uppercase mt-1">Hora</Text>
                         <Text className="text-text-primary font-black text-sm mt-0.5">
                           {format(new Date(selectedAppointment.scheduled_at), "HH:mm")}
                         </Text>
@@ -524,7 +544,7 @@ export default function AgendaScreen() {
                      {selectedAppointment.price > 0 && (
                        <View className="mt-4 bg-[#7BC67A]/10 p-5 rounded-[14px] items-center flex-row justify-between">
                          <View>
-                           <Text className="text-[#0D4F5C] font-bold text-[10px] uppercase tracking-wider">Valor Estimado</Text>
+                           <Text className="text-[#0D4F5C] font-bold text-[11px] uppercase tracking-wider">Valor Estimado</Text>
                            <Text className="text-[#0D4F5C] font-black text-xl mt-0.5">R$ {selectedAppointment.price.toFixed(2)}</Text>
                          </View>
                          <Ionicons name="cash-outline" size={28} color="#7BC67A" />
@@ -538,7 +558,7 @@ export default function AgendaScreen() {
                          <>
                            {profession && selectedAppointment.service && selectedAppointment.service.toLowerCase() !== profession.toLowerCase() && (
                              <View className="mt-4">
-                               <Text className="text-text-secondary font-bold text-[10px] uppercase tracking-wider ml-1 mb-1.5">Profissão Vinculada</Text>
+                               <Text className="text-text-secondary font-bold text-[11px] uppercase tracking-wider ml-1 mb-1.5">Profissão Vinculada</Text>
                                <View className="bg-surface p-4 rounded-[14px] flex-row items-center">
                                  <Ionicons name={getProfessionIcon(profession)} size={20} color="#0D4F5C" />
                                  <Text className="text-text-primary font-bold text-sm ml-2">{profession}</Text>
@@ -548,7 +568,7 @@ export default function AgendaScreen() {
 
                             {/* Informações de Notificação */}
                             <View className="mt-4">
-                              <Text className="text-text-secondary font-bold text-[10px] uppercase tracking-wider ml-1 mb-1.5">Lembrete no Celular</Text>
+                              <Text className="text-text-secondary font-bold text-[11px] uppercase tracking-wider ml-1 mb-1.5">Lembrete no Celular</Text>
                               <View className="bg-surface p-4 rounded-[14px] flex-row items-center justify-between">
                                 <View className="flex-row items-center">
                                   <Ionicons 
@@ -577,7 +597,7 @@ export default function AgendaScreen() {
 
                            {cleanNotes.trim().length > 0 && (
                              <View className="mt-4">
-                               <Text className="text-text-secondary font-bold text-[10px] uppercase tracking-wider ml-1 mb-1.5">Observações</Text>
+                               <Text className="text-text-secondary font-bold text-[11px] uppercase tracking-wider ml-1 mb-1.5">Observações</Text>
                                <View className="bg-surface p-4 rounded-[14px] shadow-sm">
                                  <Text className="text-text-primary font-medium leading-5 text-sm">{cleanNotes}</Text>
                                </View>
@@ -592,32 +612,38 @@ export default function AgendaScreen() {
                   <View className="mb-10">
                     {selectedAppointment.status === 'scheduled' && (
                       <>
-                        <TouchableOpacity 
+                        <TouchableOpacity
                           onPress={() => handleComplete(selectedAppointment)}
                           className="bg-[#7BC67A] p-4 rounded-full flex-row items-center justify-center shadow-md mb-3"
                           style={{ minHeight: 52 }}
+                          accessibilityLabel="Concluir serviço"
+                          accessibilityRole="button"
                         >
                           <Ionicons name="checkmark-circle" size={22} color="white" />
                           <Text className="text-white font-black text-base ml-1.5 uppercase">Concluir Serviço</Text>
                         </TouchableOpacity>
 
                         <View className="flex-row gap-3 mb-3">
-                          <TouchableOpacity 
+                          <TouchableOpacity
                             onPress={() => {
                               setShowDetailModal(false);
                               router.push(`/agenda/${selectedAppointment.id}`);
                             }}
                             className="flex-1 bg-white p-4 rounded-full flex-row items-center justify-center shadow-sm"
                             style={{ minHeight: 52 }}
+                            accessibilityLabel="Editar agendamento"
+                            accessibilityRole="button"
                           >
                             <Ionicons name="create-outline" size={20} color="#0D4F5C" />
                             <Text className="text-primary font-black ml-1.5 uppercase text-xs">Editar</Text>
                           </TouchableOpacity>
 
-                          <TouchableOpacity 
+                          <TouchableOpacity
                             onPress={() => handleCancel(selectedAppointment.id)}
                             className="flex-1 bg-white p-4 rounded-full flex-row items-center justify-center shadow-sm"
                             style={{ minHeight: 52 }}
+                            accessibilityLabel="Cancelar agendamento"
+                            accessibilityRole="button"
                           >
                             <Ionicons name="close-circle-outline" size={20} color="#E05555" />
                             <Text className="text-[#E05555] font-black ml-1.5 uppercase text-xs">Cancelar</Text>

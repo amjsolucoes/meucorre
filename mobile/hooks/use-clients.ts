@@ -1,6 +1,6 @@
 import { supabase } from '../lib/supabase';
 import { useAuthStore } from '../stores/auth';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 export interface Client {
   id: string;
@@ -23,11 +23,13 @@ export function useClients() {
   const { user } = useAuthStore();
   const [clients, setClients] = useState<Client[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const fetchClients = async () => {
+  const fetchClients = useCallback(async () => {
     if (!user) return;
     try {
       setLoading(true);
+      setError(null);
       const { data, error } = await supabase
         .from('clients')
         .select('*')
@@ -36,18 +38,19 @@ export function useClients() {
 
       if (error) throw error;
       setClients(data || []);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error fetching clients:', error);
+      setError(error.message || 'Não foi possível carregar os clientes.');
     } finally {
       setLoading(false);
     }
-  };
+  }, [user?.id]);
 
   useEffect(() => {
     if (user?.id) {
       fetchClients();
     }
-  }, [user?.id]);
+  }, [user?.id, fetchClients]);
 
   const addClient = async (data: Omit<Client, 'id' | 'user_id' | 'created_at'>) => {
     if (!user) throw new Error('Usuário não autenticado');
@@ -68,6 +71,7 @@ export function useClients() {
       .from('clients')
       .update(data)
       .eq('id', id)
+      .eq('user_id', user.id)
       .select()
       .single();
 
@@ -81,12 +85,13 @@ export function useClients() {
     const { error } = await supabase
       .from('clients')
       .delete()
-      .eq('id', id);
+      .eq('id', id)
+      .eq('user_id', user.id);
 
     if (error) throw error;
     fetchClients();
   };
 
-  return { clients, loading, fetchClients, addClient, updateClient, deleteClient };
+  return { clients, loading, error, fetchClients, addClient, updateClient, deleteClient };
 }
 

@@ -108,7 +108,7 @@ export const MenuDrawer: React.FC = () => {
         duration: DURATION, useNativeDriver: true,
       }),
     ]).start();
-  }, [isOpen]);
+  }, [isOpen, translateX, backdropOpacity]);
 
   const navigate = (path: string) => {
     closeDrawer();
@@ -172,45 +172,48 @@ export const MenuDrawer: React.FC = () => {
           <TouchableOpacity
             onPress={closeDrawer}
             style={{
-              alignSelf: 'flex-end', marginBottom: 20,
-              width: 36, height: 36, borderRadius: 10,
-              backgroundColor: 'rgba(255,255,255,0.15)',
+              alignSelf: 'flex-end', marginBottom: 22,
+              width: 34, height: 34, borderRadius: 17,
+              backgroundColor: 'rgba(255,255,255,0.12)',
+              borderWidth: 1, borderColor: 'rgba(255,255,255,0.18)',
               alignItems: 'center', justifyContent: 'center',
             }}
             accessibilityLabel="Fechar menu"
+            accessibilityRole="button"
           >
-            <Ionicons name="close" size={20} color="white" />
+            <Ionicons name="close" size={18} color="white" />
           </TouchableOpacity>
 
           {/* Avatar */}
           <View style={{
-            width: 68, height: 68, borderRadius: 20,
+            width: 64, height: 64, borderRadius: 32,
             backgroundColor: '#7BC67A',
             alignItems: 'center', justifyContent: 'center',
-            marginBottom: 14,
-            shadowColor: '#7BC67A',
-            shadowOffset: { width: 0, height: 6 },
-            shadowOpacity: 0.4, shadowRadius: 12, elevation: 10,
+            marginBottom: 16,
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: 4 },
+            shadowOpacity: 0.25, shadowRadius: 10, elevation: 10,
+            borderWidth: 2.5, borderColor: 'rgba(255,255,255,0.3)',
           }}>
-            <Text style={{ color: '#FFFFFF', fontSize: 24, fontWeight: '900' }}>{initials}</Text>
+            <Text style={{ color: '#FFFFFF', fontSize: 24, fontWeight: '900', letterSpacing: -0.5 }}>{initials}</Text>
           </View>
 
-          <Text style={{ fontSize: 19, fontWeight: '900', color: '#FFFFFF', marginBottom: 3 }} numberOfLines={1}>
+          <Text style={{ fontSize: 18, fontWeight: '900', color: '#FFFFFF', marginBottom: 3, letterSpacing: -0.3 }} numberOfLines={1}>
             {displayName}
           </Text>
-          <Text style={{ fontSize: 13, fontWeight: '500', color: 'rgba(255,255,255,0.65)', marginBottom: 14 }} numberOfLines={1}>
+          <Text style={{ fontSize: 12, fontWeight: '500', color: 'rgba(255,255,255,0.6)', marginBottom: 16 }} numberOfLines={1}>
             {displayEmail}
           </Text>
 
           <View style={{
-            backgroundColor: 'rgba(123,198,122,0.25)',
-            paddingHorizontal: 12, paddingVertical: 5,
+            backgroundColor: 'rgba(123,198,122,0.2)',
+            paddingHorizontal: 11, paddingVertical: 5,
             borderRadius: 999, alignSelf: 'flex-start',
-            borderWidth: 1, borderColor: 'rgba(123,198,122,0.4)',
-            flexDirection: 'row', alignItems: 'center', gap: 5,
+            borderWidth: 1, borderColor: 'rgba(123,198,122,0.35)',
+            flexDirection: 'row', alignItems: 'center', gap: 6,
           }}>
-            <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: '#7BC67A' }} />
-            <Text style={{ color: '#7BC67A', fontSize: 10, fontWeight: '800', letterSpacing: 1, textTransform: 'uppercase' }}>
+            <View style={{ width: 5, height: 5, borderRadius: 2.5, backgroundColor: '#7BC67A' }} />
+            <Text style={{ color: '#7BC67A', fontSize: 11, fontWeight: '800', letterSpacing: 1.2, textTransform: 'uppercase' }}>
               Conta Ativa
             </Text>
           </View>
@@ -222,7 +225,7 @@ export const MenuDrawer: React.FC = () => {
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{ paddingBottom: 80 }}
         >
-          <Text style={{ fontSize: 10, fontWeight: '800', color: '#A0B0B5', letterSpacing: 2, textTransform: 'uppercase', paddingHorizontal: 24, marginBottom: 4 }}>
+          <Text style={{ fontSize: 11, fontWeight: '800', color: '#A0B0B5', letterSpacing: 2, textTransform: 'uppercase', paddingHorizontal: 24, marginBottom: 4 }}>
             Minha Conta
           </Text>
 
@@ -240,7 +243,7 @@ export const MenuDrawer: React.FC = () => {
           />
 
           <View style={{ height: 1, backgroundColor: '#E2E8EA', marginHorizontal: 20, marginVertical: 8 }} />
-          <Text style={{ fontSize: 10, fontWeight: '800', color: '#A0B0B5', letterSpacing: 2, textTransform: 'uppercase', paddingHorizontal: 24, marginBottom: 4 }}>
+          <Text style={{ fontSize: 11, fontWeight: '800', color: '#A0B0B5', letterSpacing: 2, textTransform: 'uppercase', paddingHorizontal: 24, marginBottom: 4 }}>
             Sessão
           </Text>
 
@@ -252,7 +255,7 @@ export const MenuDrawer: React.FC = () => {
           />
 
           <View style={{ height: 1, backgroundColor: '#E2E8EA', marginHorizontal: 20, marginVertical: 8 }} />
-          <Text style={{ fontSize: 10, fontWeight: '800', color: '#A0B0B5', letterSpacing: 2, textTransform: 'uppercase', paddingHorizontal: 24, marginBottom: 4 }}>
+          <Text style={{ fontSize: 11, fontWeight: '800', color: '#A0B0B5', letterSpacing: 2, textTransform: 'uppercase', paddingHorizontal: 24, marginBottom: 4 }}>
             Legal
           </Text>
 
@@ -282,11 +285,16 @@ export const MenuDrawer: React.FC = () => {
 
         {/* Footer */}
         <View style={{
-          borderTopWidth: 1, borderTopColor: '#E2E8EA',
-          paddingVertical: 4, paddingHorizontal: 20,
+          borderTopWidth: 1, borderTopColor: '#F0F4F5',
+          paddingVertical: 14, paddingHorizontal: 20,
           flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
+          gap: 10,
         }}>
-          <LogoIcon size={100} />
+          <LogoIcon size={30} />
+          <View>
+            <Text style={{ fontSize: 12, fontWeight: '800', color: '#1A1A1A', letterSpacing: -0.2 }}>Meu Corre</Text>
+            <Text style={{ fontSize: 11, fontWeight: '500', color: '#A0B0B5', marginTop: 1 }}>Controle Financeiro</Text>
+          </View>
         </View>
       </Animated.View>
     </View>

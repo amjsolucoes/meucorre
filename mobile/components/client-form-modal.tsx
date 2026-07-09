@@ -114,7 +114,7 @@ export function ClientFormModal({ visible, onClose, onClientCreated }: ClientFor
         setValue('address_city', data.localidade);
         setValue('address_state', data.uf);
       }
-    } catch (error) {
+    } catch {
       showAlert({
         type: 'error',
         title: 'Erro de conexão',

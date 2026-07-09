@@ -1,6 +1,6 @@
 import { ScreenHeader } from '@/components/screen-header';
 import { Theme } from '@/constants/theme';
-import { useClients } from '@/hooks/use-clients';
+import { Client, useClients } from '@/hooks/use-clients';
 import { usePagination } from '@/hooks/use-pagination';
 import { openWhatsApp } from '@/lib/whatsapp';
 import { Ionicons } from '@expo/vector-icons';
@@ -23,16 +23,6 @@ const AVATAR_COLORS = ['#0D4F5C', '#1A6B7A', '#7BC67A', '#F0A500', '#E05555'];
 const getClientColor = (index: number) => AVATAR_COLORS[index % AVATAR_COLORS.length];
 const getClientInitial = (name: string) => name.charAt(0).toUpperCase();
 
-type Client = {
-  id: string;
-  name: string;
-  phone: string;
-  phone_fixed?: string;
-  is_whatsapp: boolean;
-  address_city?: string;
-  address_neighborhood?: string;
-};
-
 export default function ClientesScreen() {
   const router = useRouter();
   const { clients, loading, fetchClients } = useClients();
@@ -45,7 +35,7 @@ export default function ClientesScreen() {
   useFocusEffect(
     React.useCallback(() => {
       fetchClients();
-    }, [])
+    }, [fetchClients])
   );
 
   const onRefresh = async () => {
@@ -93,6 +83,7 @@ export default function ClientesScreen() {
               }}
               accessibilityLabel="Importar contatos do celular"
               accessibilityRole="button"
+              hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
             >
               <Ionicons name="download-outline" size={20} color="#0D4F5C" />
             </TouchableOpacity>

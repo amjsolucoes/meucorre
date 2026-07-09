@@ -1,3 +1,4 @@
+import { ScreenHeader } from '@/components/screen-header';
 import { useExpenseCategories } from '@/hooks/use-expense-categories';
 import { useUIStore } from '@/stores/ui';
 import { Ionicons } from '@expo/vector-icons';
@@ -5,7 +6,7 @@ import { format, parseISO } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { ActivityIndicator, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { supabase } from '../../lib/supabase';
@@ -19,7 +20,7 @@ export default function CorreDetailScreen() {
   const { showAlert } = useUIStore();
   const { categories } = useExpenseCategories();
 
-  const fetchTransaction = async () => {
+  const fetchTransaction = useCallback(async () => {
     try {
       setLoading(true);
       const { data, error } = await supabase
@@ -44,12 +45,12 @@ export default function CorreDetailScreen() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [id, showAlert, router]);
 
   useFocusEffect(
-    React.useCallback(() => {
+    useCallback(() => {
       fetchTransaction();
-    }, [id])
+    }, [fetchTransaction])
   );
 
   const handleDelete = async () => {
@@ -105,18 +106,7 @@ export default function CorreDetailScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-white" edges={['top', 'left', 'right']}>
-      {/* Header */}
-      <View className="px-6 py-4 flex-row items-center border-b border-gray-100">
-        <TouchableOpacity 
-          onPress={() => router.back()} 
-          className="p-2 -ml-2"
-          accessibilityLabel="Voltar"
-          accessibilityRole="button"
-        >
-          <Ionicons name="chevron-back" size={28} color="#0D4F5C" />
-        </TouchableOpacity>
-        <Text className="text-xl font-bold text-gray-900 ml-2">Detalhes do Corre</Text>
-      </View>
+      <ScreenHeader title="Detalhes do Corre" />
 
       <ScrollView className="flex-1 px-6 pt-6" showsVerticalScrollIndicator={false}>
         <View className="pb-12">

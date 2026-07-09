@@ -134,7 +134,7 @@ export default function EditarAgendamento() {
     };
 
     loadAppointment();
-  }, [id, user]);
+  }, [id, user, router, setValue, showAlert]);
 
   const onDateChange = (event: any, selectedDate?: Date) => {
     setShowDatePicker(false);
@@ -239,7 +239,7 @@ export default function EditarAgendamento() {
         message: 'Agendamento atualizado com sucesso.',
         onConfirm: () => router.back()
       });
-    } catch (error: any) {
+    } catch {
       showAlert({
         type: 'error',
         title: 'Opa!',

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuthStore } from '../stores/auth';
 import { Profile, useProfileStore } from '../stores/profile';
@@ -9,13 +9,15 @@ export function useProfile() {
   const { user } = useAuthStore();
   const { profile, setProfile } = useProfileStore();
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const fetchProfile = async () => {
+  const fetchProfile = useCallback(async () => {
     if (!user) {
       return;
     }
     try {
       setLoading(true);
+      setError(null);
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
@@ -33,10 +35,11 @@ export function useProfile() {
       }
     } catch (error: any) {
       console.error('[useProfile] Erro ao buscar perfil:', error.message || error);
+      setError(error.message || 'Não foi possível carregar o perfil.');
     } finally {
       setLoading(false);
     }
-  };
+  }, [user?.id, setProfile]);
 
   const updateProfile = async (updates: Partial<Profile>) => {
     if (!user) throw new Error('Usuário não autenticado');
@@ -73,20 +76,27 @@ export function useProfile() {
             toUpdate.push({ id: apt.id, notes: cleanNotes });
           }
 
-          // Atualiza em paralelo
+          // Atualiza em paralelo — isolado em try/catch: essa limpeza é um
+          // efeito colateral da troca de profissões, não a ação que o
+          // usuário pediu (salvar o perfil). Uma falha aqui não pode
+          // impedir o upsert do perfil logo abaixo.
           if (toUpdate.length > 0) {
-            await Promise.all(
-              toUpdate.map(({ id, notes }) =>
-                supabase
-                  .from('appointments')
-                  .update({ notes })
-                  .eq('id', id)
-                  .eq('user_id', user.id)
-              )
-            );
-            console.log(
-              `[updateProfile] Cascade: limpou prefixo de profissão em ${toUpdate.length} agendamento(s).`
-            );
+            try {
+              await Promise.all(
+                toUpdate.map(({ id, notes }) =>
+                  supabase
+                    .from('appointments')
+                    .update({ notes })
+                    .eq('id', id)
+                    .eq('user_id', user.id)
+                )
+              );
+              console.log(
+                `[updateProfile] Cascade: limpou prefixo de profissão em ${toUpdate.length} agendamento(s).`
+              );
+            } catch (cascadeError) {
+              console.error('[updateProfile] Cascade de profissões falhou (perfil será salvo mesmo assim):', cascadeError);
+            }
           }
         }
       }
@@ -120,7 +130,7 @@ export function useProfile() {
     if (user?.id) {
       fetchProfile();
     }
-  }, [user?.id]);
+  }, [user?.id, fetchProfile]);
 
   return { profile, loading, fetchProfile, updateProfile, changePassword, deleteAccount };
 }

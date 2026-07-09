@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useMemo, useCallback } from 'react';
-import { 
-  View, Text, TextInput, ActivityIndicator, KeyboardAvoidingView, 
-  Platform, Pressable, ScrollView, FlatList, TouchableOpacity
+import {
+  View, Text, TextInput, ActivityIndicator, KeyboardAvoidingView,
+  Platform, ScrollView, FlatList, TouchableOpacity
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -75,6 +75,9 @@ const ProfessionItem = React.memo(({ item, isSelected, onToggle }: {
     <TouchableOpacity
       onPress={() => onToggle(item.name)}
       activeOpacity={0.7}
+      accessibilityRole="checkbox"
+      accessibilityLabel={item.name}
+      accessibilityState={{ checked: isSelected }}
       className={`flex-row items-center justify-between p-4 rounded-[14px] mb-3 bg-white shadow-sm ${
         isSelected ? 'bg-[#0D4F5C]/5' : ''
       }`}
@@ -99,6 +102,7 @@ const ProfessionItem = React.memo(({ item, isSelected, onToggle }: {
     </TouchableOpacity>
   );
 });
+ProfessionItem.displayName = 'ProfessionItem';
 
 export default function EditarPerfilScreen() {
   const router = useRouter();
@@ -119,7 +123,8 @@ export default function EditarPerfilScreen() {
     }
   });
 
-  const selectedProfessions = watch('professions') || [];
+  const watchedProfessions = watch('professions');
+  const selectedProfessions = useMemo(() => watchedProfessions || [], [watchedProfessions]);
   const zipcode = watch('address_zipcode');
 
   useEffect(() => {
@@ -160,7 +165,7 @@ export default function EditarPerfilScreen() {
         setValue('address_city', data.localidade, { shouldDirty: true });
         setValue('address_state', data.uf, { shouldDirty: true });
       }
-    } catch (error) {
+    } catch {
       showAlert({ type: 'error', title: 'Erro de conexão', message: 'Não foi possível buscar o CEP agora.' });
     } finally {
       setIsSearchingCEP(false);
@@ -232,7 +237,7 @@ export default function EditarPerfilScreen() {
             
             {/* Nome */}
             <View className="mb-4">
-              <Text className="text-text-secondary font-bold text-[10px] uppercase tracking-wider mb-2 ml-1">NOME COMPLETO</Text>
+              <Text className="text-text-secondary font-bold text-[11px] uppercase tracking-wider mb-2 ml-1">NOME COMPLETO</Text>
               <Controller
                 control={control}
                 name="name"
@@ -246,12 +251,17 @@ export default function EditarPerfilScreen() {
                   />
                 )}
               />
-              {errors.name && <Text className="text-[#E05555] text-xs mt-1 ml-1 font-bold">{errors.name.message}</Text>}
+              {errors.name && (
+                <View className="flex-row items-center gap-1 mt-1 ml-1">
+                  <Ionicons name="alert-circle" size={13} color="#E05555" />
+                  <Text className="text-[#E05555] text-xs font-bold">{errors.name.message}</Text>
+                </View>
+              )}
             </View>
 
             {/* Telefone / WhatsApp */}
             <View className="mb-4">
-              <Text className="text-text-secondary font-bold text-[10px] uppercase tracking-wider mb-2 ml-1">WHATSAPP / CELULAR</Text>
+              <Text className="text-text-secondary font-bold text-[11px] uppercase tracking-wider mb-2 ml-1">WHATSAPP / CELULAR</Text>
               <Controller
                 control={control}
                 name="phone"
@@ -278,7 +288,7 @@ export default function EditarPerfilScreen() {
 
             {/* Profissões */}
             <View className="mb-4">
-              <Text className="text-text-secondary font-bold text-[10px] uppercase tracking-wider mb-2 ml-1">MINHAS PROFISSÕES</Text>
+              <Text className="text-text-secondary font-bold text-[11px] uppercase tracking-wider mb-2 ml-1">MINHAS PROFISSÕES</Text>
               <View className="bg-surface rounded-[14px] overflow-hidden shadow-sm">
                 {selectedProfessions.length > 0 ? (
                   selectedProfessions.map((prof, index) => {
@@ -291,7 +301,13 @@ export default function EditarPerfilScreen() {
                           </View>
                           <Text className="text-text-primary font-bold text-base">{prof}</Text>
                         </View>
-                        <TouchableOpacity onPress={() => setValue('professions', selectedProfessions.filter(p => p !== prof))} activeOpacity={0.7}>
+                        <TouchableOpacity
+                          onPress={() => setValue('professions', selectedProfessions.filter(p => p !== prof))}
+                          activeOpacity={0.7}
+                          accessibilityRole="button"
+                          accessibilityLabel={`Remover profissão ${prof}`}
+                          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                        >
                           <Ionicons name="close-circle" size={20} color="#E05555" />
                         </TouchableOpacity>
                       </View>
@@ -303,9 +319,11 @@ export default function EditarPerfilScreen() {
                   </View>
                 )}
                 
-                <TouchableOpacity 
+                <TouchableOpacity
                   onPress={openProfessionsModal}
                   activeOpacity={0.7}
+                  accessibilityRole="button"
+                  accessibilityLabel="Adicionar profissão"
                   className="bg-[#0D4F5C]/10 p-4.5 items-center flex-row justify-center"
                 >
                   <Ionicons name="add-circle" size={20} color="#0D4F5C" />
@@ -316,7 +334,7 @@ export default function EditarPerfilScreen() {
 
             {/* Endereço */}
             <View className="mb-4">
-              <Text className="text-text-secondary font-bold text-[10px] uppercase tracking-wider mb-3 ml-1">ONDE VOCÊ ATUA? (ENDEREÇO)</Text>
+              <Text className="text-text-secondary font-bold text-[11px] uppercase tracking-wider mb-3 ml-1">ONDE VOCÊ ATUA? (ENDEREÇO)</Text>
               
               {/* CEP */}
               <View className="flex-row mb-4">
@@ -337,12 +355,14 @@ export default function EditarPerfilScreen() {
                     )}
                   />
                 </View>
-                <TouchableOpacity 
+                <TouchableOpacity
                   onPress={handleCEPChange}
                   disabled={isSearchingCEP}
                   className="bg-[#0D4F5C] px-5 rounded-[12px] shadow-sm justify-center items-center"
                   style={{ minWidth: 52 }}
                   activeOpacity={0.8}
+                  accessibilityRole="button"
+                  accessibilityLabel="Buscar endereço pelo CEP"
                 >
                   {isSearchingCEP ? (
                     <ActivityIndicator color="white" size="small" />
@@ -441,10 +461,12 @@ export default function EditarPerfilScreen() {
             </View>
 
             {/* Botão Salvar */}
-            <TouchableOpacity 
+            <TouchableOpacity
               onPress={handleSubmit(onSubmit)}
               disabled={isSaving}
               activeOpacity={0.8}
+              accessibilityRole="button"
+              accessibilityLabel="Salvar alterações do perfil"
               className="rounded-full mt-6 mb-20 overflow-hidden shadow-lg shadow-[#0D4F5C]/20"
             >
               <LinearGradient
@@ -475,7 +497,13 @@ export default function EditarPerfilScreen() {
           <SafeAreaView className="flex-1 px-6">
             <View className="flex-row items-center justify-between py-5">
               <Text className="text-2xl font-black text-text-primary">Profissões</Text>
-              <TouchableOpacity onPress={closeProfessionsModal} className="w-[44px] h-[44px] bg-surface rounded-[12px] items-center justify-center shadow-sm" activeOpacity={0.7}>
+              <TouchableOpacity
+                onPress={closeProfessionsModal}
+                className="w-[44px] h-[44px] bg-surface rounded-[12px] items-center justify-center shadow-sm"
+                activeOpacity={0.7}
+                accessibilityRole="button"
+                accessibilityLabel="Fechar seleção de profissões"
+              >
                 <Ionicons name="close" size={24} color="#6B7F85" />
               </TouchableOpacity>
             </View>
@@ -506,9 +534,11 @@ export default function EditarPerfilScreen() {
             />
 
             <View className="absolute bottom-6 left-6 right-6">
-              <TouchableOpacity 
+              <TouchableOpacity
                 onPress={saveProfessions}
                 activeOpacity={0.8}
+                accessibilityRole="button"
+                accessibilityLabel={`Confirmar ${localProfessions.length} profissões selecionadas`}
                 className="rounded-full overflow-hidden shadow-lg shadow-[#0D4F5C]/20"
               >
                 <LinearGradient

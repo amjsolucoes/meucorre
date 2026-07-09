@@ -46,7 +46,7 @@ export default function ReciboScreen() {
     };
 
     fetchTransaction();
-  }, [id]);
+  }, [id, showAlert]);
 
   const generatePDF = async () => {
     if (!transaction) return;
@@ -56,19 +56,19 @@ export default function ReciboScreen() {
         <head>
           <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no" />
           <style>
-            body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; padding: 40px; color: #1F2937; }
-            .header { text-align: center; margin-bottom: 40px; border-bottom: 2px solid #F3F4F6; padding-bottom: 20px; }
-            .title { font-size: 28px; font-weight: bold; color: #4D5DFB; margin-bottom: 5px; }
-            .subtitle { font-size: 16px; color: #6B7280; }
-            .receipt-box { border: 1px solid #E5E7EB; border-radius: 20px; padding: 30px; background-color: #F9FAFB; }
-            .row { display: flex; justify-content: space-between; margin-bottom: 20px; border-bottom: 1px dashed #E5E7EB; padding-bottom: 10px; }
-            .label { font-weight: bold; color: #6B7280; text-transform: uppercase; font-size: 12px; }
-            .value { font-weight: bold; font-size: 18px; color: #2D3436; }
-            .amount-row { margin-top: 30px; padding: 20px; background-color: #EEF2FF; border-radius: 15px; display: flex; justify-content: space-between; align-items: center; }
-            .amount-label { font-size: 18px; font-weight: bold; color: #4D5DFB; }
-            .amount-value { font-size: 32px; font-weight: 900; color: #2D3436; }
-            .footer { text-align: center; margin-top: 50px; font-size: 14px; color: #9CA3AF; }
-            .signature { margin-top: 60px; border-top: 1px solid #D1D5DB; width: 250px; margin-left: auto; margin-right: auto; padding-top: 10px; font-style: italic; }
+            body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; padding: 40px; color: #1A1A1A; }
+            .header { text-align: center; margin-bottom: 40px; border-bottom: 2px solid #E2E8EA; padding-bottom: 20px; }
+            .title { font-size: 28px; font-weight: bold; color: #0D4F5C; margin-bottom: 5px; }
+            .subtitle { font-size: 16px; color: #6B7F85; }
+            .receipt-box { border: 1px solid #E2E8EA; border-radius: 20px; padding: 30px; background-color: #F5F7F8; }
+            .row { display: flex; justify-content: space-between; margin-bottom: 20px; border-bottom: 1px dashed #E2E8EA; padding-bottom: 10px; }
+            .label { font-weight: bold; color: #6B7F85; text-transform: uppercase; font-size: 12px; }
+            .value { font-weight: bold; font-size: 18px; color: #1A1A1A; }
+            .amount-row { margin-top: 30px; padding: 20px; background-color: rgba(13,79,92,0.08); border-radius: 15px; display: flex; justify-content: space-between; align-items: center; }
+            .amount-label { font-size: 18px; font-weight: bold; color: #0D4F5C; }
+            .amount-value { font-size: 32px; font-weight: 900; color: #1A1A1A; }
+            .footer { text-align: center; margin-top: 50px; font-size: 14px; color: #A0B0B5; }
+            .signature { margin-top: 60px; border-top: 1px solid #D0D9DC; width: 250px; margin-left: auto; margin-right: auto; padding-top: 10px; font-style: italic; }
           </style>
         </head>
         <body>
@@ -136,7 +136,7 @@ export default function ReciboScreen() {
   if (loading) {
     return (
       <View className="flex-1 bg-white items-center justify-center">
-        <ActivityIndicator size="large" color="#4D5DFB" />
+        <ActivityIndicator size="large" color="#0D4F5C" />
       </View>
     );
   }
@@ -152,46 +152,46 @@ export default function ReciboScreen() {
           accessibilityLabel="Voltar"
           accessibilityRole="button"
         >
-          <Ionicons name="chevron-back" size={28} color="#1F2937" />
+          <Ionicons name="chevron-back" size={28} color="#1A1A1A" />
         </TouchableOpacity>
-        <Text className="text-xl font-bold text-gray-900 ml-2">Visualizar Recibo</Text>
+        <Text className="text-xl font-bold text-[#1A1A1A] ml-2">Visualizar Recibo</Text>
       </View>
 
       <ScrollView className="flex-1 px-6 pt-4" showsVerticalScrollIndicator={false}>
-        <View className="bg-[#F8F9FE] p-8 rounded-[40px] border border-gray-100 shadow-sm">
+        <View className="bg-[#F5F7F8] p-8 rounded-[40px] border border-[#E2E8EA] shadow-sm">
           <View className="items-center mb-10">
-            <View className="bg-blue-600 p-4 rounded-3xl mb-4">
+            <View className="bg-[#0D4F5C] p-4 rounded-3xl mb-4">
               <Ionicons name="receipt" size={40} color="white" />
             </View>
-            <Text className="text-2xl font-black text-gray-900">Meu Corre</Text>
-            <Text className="text-gray-500 font-medium">Comprovante de Pagamento</Text>
+            <Text className="text-2xl font-black text-[#1A1A1A]">Meu Corre</Text>
+            <Text className="text-[#6B7F85] font-medium">Comprovante de Pagamento</Text>
           </View>
 
           <View className="space-y-6">
             <View>
-              <Text className="text-gray-400 font-bold uppercase text-xs tracking-widest mb-1">Cliente</Text>
-              <Text className="text-xl font-bold text-gray-900">{transaction.clients?.name || 'Cliente Avulso'}</Text>
+              <Text className="text-[#A0B0B5] font-bold uppercase text-xs tracking-widest mb-1">Cliente</Text>
+              <Text className="text-xl font-bold text-[#1A1A1A]">{transaction.clients?.name || 'Cliente Avulso'}</Text>
             </View>
 
             <View>
-              <Text className="text-gray-400 font-bold uppercase text-xs tracking-widest mb-1">Serviço</Text>
-              <Text className="text-xl font-bold text-gray-900">{transaction.title}</Text>
+              <Text className="text-[#A0B0B5] font-bold uppercase text-xs tracking-widest mb-1">Serviço</Text>
+              <Text className="text-xl font-bold text-[#1A1A1A]">{transaction.title}</Text>
             </View>
 
             <View className="flex-row justify-between">
               <View>
-                <Text className="text-gray-400 font-bold uppercase text-xs tracking-widest mb-1">Data</Text>
-                <Text className="text-lg font-bold text-gray-900">{format(parseISO(transaction.created_at), "dd/MM/yyyy")}</Text>
+                <Text className="text-[#A0B0B5] font-bold uppercase text-xs tracking-widest mb-1">Data</Text>
+                <Text className="text-lg font-bold text-[#1A1A1A]">{format(parseISO(transaction.created_at), "dd/MM/yyyy")}</Text>
               </View>
               <View className="items-end">
-                <Text className="text-gray-400 font-bold uppercase text-xs tracking-widest mb-1">Pagamento</Text>
-                <Text className="text-lg font-bold text-gray-900 uppercase">{transaction.payment_method}</Text>
+                <Text className="text-[#A0B0B5] font-bold uppercase text-xs tracking-widest mb-1">Pagamento</Text>
+                <Text className="text-lg font-bold text-[#1A1A1A] uppercase">{transaction.payment_method}</Text>
               </View>
             </View>
 
-            <View className="border-t border-dashed border-gray-200 pt-6 mt-6 items-center">
-              <Text className="text-gray-400 font-bold uppercase text-xs tracking-widest mb-2">Valor Total</Text>
-              <Text className="text-4xl font-black text-blue-700">R$ {transaction.amount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</Text>
+            <View className="border-t border-dashed border-[#D0D9DC] pt-6 mt-6 items-center">
+              <Text className="text-[#A0B0B5] font-bold uppercase text-xs tracking-widest mb-2">Valor Total</Text>
+              <Text className="text-4xl font-black text-[#0D4F5C]">R$ {transaction.amount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</Text>
             </View>
           </View>
         </View>
@@ -199,7 +199,7 @@ export default function ReciboScreen() {
         <TouchableOpacity
           onPress={generatePDF}
           disabled={sharing}
-          className="bg-blue-600 py-6 rounded-3xl mt-10 mb-10 flex-row justify-center items-center shadow-lg shadow-blue-900/20"
+          className="bg-[#0D4F5C] py-6 rounded-3xl mt-10 mb-10 flex-row justify-center items-center shadow-lg shadow-[#0D4F5C]/20"
           activeOpacity={0.8}
           accessibilityLabel="Gerar e enviar recibo PDF"
           accessibilityRole="button"
@@ -213,12 +213,14 @@ export default function ReciboScreen() {
             </>
           )}
         </TouchableOpacity>
-        
-        <TouchableOpacity 
+
+        <TouchableOpacity
           onPress={() => router.back()}
           className="items-center mb-20"
+          accessibilityLabel="Voltar"
+          accessibilityRole="button"
         >
-          <Text className="text-gray-400 font-bold">Voltar</Text>
+          <Text className="text-[#A0B0B5] font-bold">Voltar</Text>
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuthStore } from '../stores/auth';
 import {
@@ -10,14 +10,16 @@ export function useAppointments() {
   const { user } = useAuthStore();
   const [appointments, setAppointments] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const fetchAppointments = async () => {
+  const fetchAppointments = useCallback(async () => {
     if (!user) {
       return;
     }
 
     try {
       setLoading(true);
+      setError(null);
       const { data, error } = await supabase
         .from('appointments')
         .select(`
@@ -33,66 +35,57 @@ export function useAppointments() {
       setAppointments(data || []);
     } catch (error: any) {
       console.error('[useAppointments] Erro ao buscar agendamentos:', error.message || error);
+      setError(error.message || 'Não foi possível carregar os agendamentos.');
     } finally {
       setLoading(false);
     }
-  };
+  }, [user?.id]);
 
   useEffect(() => {
     if (user?.id) {
       fetchAppointments();
     }
-  }, [user?.id]);
+  }, [user?.id, fetchAppointments]);
 
   const addAppointment = async (data: any) => {
     if (!user) throw new Error('Usuário não autenticado');
 
-    let { data: inserted, error } = await supabase
+    const { data: inserted, error } = await supabase
       .from('appointments')
       .insert({ ...data, user_id: user.id })
       .select(`*, clients(name)`)
       .single();
 
-    // Se der erro de coluna inexistente (banco ainda não migrado), tenta inserir sem elas
-    if (error && (error.message?.includes('column') || error.code === 'PGRST204' || error.hint?.includes('column') || error.message?.includes('not found'))) {
-      console.warn('Colunas de notificação não encontradas no banco. Inserindo sem elas.');
-      
-      const cleanData = { ...data };
-      delete cleanData.notification_enabled;
-      delete cleanData.notification_trigger_minutes;
-
-      const retryResult = await supabase
-        .from('appointments')
-        .insert({ ...cleanData, user_id: user.id })
-        .select(`*, clients(name)`)
-        .single();
-      
-      inserted = retryResult.data;
-      error = retryResult.error;
-    }
-
     if (error) throw error;
 
     // Agenda notificação local antes do agendamento — só para status 'scheduled'
+    let reminderScheduled = false;
+    let reminderRequested = false;
     if (inserted && data.status === 'scheduled') {
       const clientName = inserted.clients?.name ?? 'cliente';
       const isEnabled = data.notification_enabled !== false;
 
       if (isEnabled) {
+        reminderRequested = true;
         const professionMatch = inserted.notes?.match(/^\[Profissão:\s*([^\]]+)\]/);
         const fallbackService = professionMatch ? professionMatch[1] : 'Serviço';
 
-        await scheduleAppointmentReminder(
+        const reminderId = await scheduleAppointmentReminder(
           inserted.id,
           clientName,
           inserted.service || fallbackService,
           inserted.scheduled_at,
           data.notification_trigger_minutes ?? 60
         );
+        reminderScheduled = reminderId !== null;
       }
     }
 
     fetchAppointments();
+    // reminderRequested && !reminderScheduled: usuário pediu lembrete mas ele
+    // não foi agendado (permissão negada ou data inválida) — a tela chamadora
+    // decide como avisar disso, em vez de deixar passar em silêncio.
+    return { appointment: inserted, reminderFailed: reminderRequested && !reminderScheduled };
   };
 
   const updateAppointmentStatus = async (
@@ -129,7 +122,15 @@ export function useAppointments() {
         date: new Date().toISOString().split('T')[0],
         status: 'concluido',
       });
-      if (transError) console.error('Erro ao criar transação do agendamento:', transError);
+      if (transError) {
+        console.error('Erro ao criar transação do agendamento:', transError);
+        fetchAppointments();
+        // O agendamento já foi marcado como concluído (linha acima), mas o
+        // ganho correspondente não foi registrado — isso precisa chegar até
+        // a tela, e não só ao console, senão o usuário acha que o valor
+        // entrou quando não entrou.
+        throw new Error('APPOINTMENT_COMPLETED_TRANSACTION_FAILED');
+      }
     }
 
     fetchAppointments();
@@ -154,6 +155,7 @@ export function useAppointments() {
   return {
     appointments,
     loading,
+    error,
     fetchAppointments,
     addAppointment,
     updateAppointmentStatus,

@@ -1,6 +1,6 @@
 import { useUIStore } from '@/stores/ui';
 import { Ionicons } from '@expo/vector-icons';
-import React, { useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import {
     Animated,
     PanResponder,
@@ -19,9 +19,9 @@ const TOAST_CONFIG = {
   },
   error: {
     icon: 'close-circle' as const,
-    color: '#FF6B6B',
+    color: '#E05555',
     bg: 'rgba(30,10,10,0.96)',
-    border: '#FF6B6B',
+    border: '#E05555',
   },
   info: {
     icon: 'information-circle' as const,
@@ -59,7 +59,7 @@ export const ToastNotification: React.FC = () => {
   const isConfirmDialog = showCancel;
 
   // ── dismiss animation ────────────────────────────────────────────────────
-  const dismiss = (toY = -140) => {
+  const dismiss = useCallback((toY = -140) => {
     if (timerRef.current) clearTimeout(timerRef.current);
     Animated.parallel([
       Animated.timing(translateY, { toValue: toY, duration: 220, useNativeDriver: true }),
@@ -68,7 +68,7 @@ export const ToastNotification: React.FC = () => {
       dragY.setValue(0);
       hideAlert();
     });
-  };
+  }, [translateY, opacity, dragY, hideAlert]);
 
   // ── swipe-up pan responder ───────────────────────────────────────────────
   const panResponder = useRef(
@@ -146,7 +146,7 @@ export const ToastNotification: React.FC = () => {
       opacity.setValue(0);
       dragY.setValue(0);
     }
-  }, [visible]);
+  }, [visible, dismiss, dragY, isConfirmDialog, opacity, scaleX, translateY]);
 
   const handleConfirm = () => {
     dismiss();
@@ -178,6 +178,8 @@ export const ToastNotification: React.FC = () => {
       {...panResponder.panHandlers}
     >
       <View
+        accessibilityRole="alert"
+        accessibilityLiveRegion="polite"
         style={{
           backgroundColor: config.bg,
           borderRadius: 20,
@@ -237,6 +239,8 @@ export const ToastNotification: React.FC = () => {
             <TouchableOpacity
               onPress={() => dismiss()}
               hitSlop={{ top: 12, right: 12, bottom: 12, left: 12 }}
+              accessibilityLabel="Fechar notificação"
+              accessibilityRole="button"
             >
               <Ionicons name="close" size={18} color="rgba(255,255,255,0.5)" />
             </TouchableOpacity>
@@ -248,6 +252,8 @@ export const ToastNotification: React.FC = () => {
           <View style={{ flexDirection: 'row', gap: 8, marginTop: 14, paddingLeft: 8 }}>
             <TouchableOpacity
               onPress={handleCancel}
+              accessibilityLabel={cancelText || 'Cancelar'}
+              accessibilityRole="button"
               style={{
                 flex: 1, paddingVertical: 10, borderRadius: 12,
                 alignItems: 'center',
@@ -261,6 +267,8 @@ export const ToastNotification: React.FC = () => {
             </TouchableOpacity>
             <TouchableOpacity
               onPress={handleConfirm}
+              accessibilityLabel={confirmText || 'Confirmar'}
+              accessibilityRole="button"
               style={{
                 flex: 1, paddingVertical: 10, borderRadius: 12,
                 alignItems: 'center',

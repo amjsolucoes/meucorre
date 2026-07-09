@@ -32,7 +32,7 @@ export default function HistoricoScreen() {
 
   useEffect(() => {
     fetchTransactions();
-  }, []);
+  }, [fetchTransactions]);
 
   const onDateChange = (event: any, selectedDate?: Date) => {
     setShowDatePicker(false);

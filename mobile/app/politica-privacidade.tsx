@@ -31,7 +31,9 @@ export default function PoliticaPrivacidadeScreen() {
               alignItems: 'center',
               justifyContent: 'center',
             }}
+            hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
             accessibilityLabel="Voltar"
+            accessibilityRole="button"
           >
             <Ionicons name="arrow-back" size={20} color="#0D4F5C" />
           </TouchableOpacity>

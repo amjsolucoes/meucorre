@@ -7,7 +7,6 @@ import { StatusBar } from 'expo-status-bar';
 import React, { useEffect, useRef, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import {
-    Dimensions,
     KeyboardAvoidingView,
     Platform,
     ScrollView,
@@ -21,8 +20,6 @@ import * as z from 'zod';
 import { supabase } from '../../lib/supabase';
 import { useAuthStore } from '../../stores/auth';
 import { useUIStore } from '../../stores/ui';
-
-const { width: SCREEN_W } = Dimensions.get('window');
 
 const emailSchema = z.object({
   email: z.string().email('E-mail inválido'),
@@ -42,7 +39,7 @@ export default function ForgotPassword() {
   const [step, setStep] = useState<'email' | 'otp'>('email');
   const [userEmail, setUserEmail] = useState('');
   const [otp, setOtp] = useState<string[]>(['', '', '', '', '', '']);
-  const inputsRef = useRef<Array<TextInput | null>>([]);
+  const inputsRef = useRef<(TextInput | null)[]>([]);
   const [activeInputIndex, setActiveInputIndex] = useState<number | null>(null);
 
   const emailForm = useForm<EmailFormData>({
@@ -67,7 +64,7 @@ export default function ForgotPassword() {
       otpForm.setValue('code', '');
       setTimeout(() => inputsRef.current[0]?.focus(), 500);
     }
-  }, [step]);
+  }, [step, otpForm]);
 
   const onSendEmail = async (data: EmailFormData) => {
     try {
@@ -84,7 +81,7 @@ export default function ForgotPassword() {
         title: 'Código enviado!',
         message: 'Verifique seu e-mail para encontrar o código de 6 dígitos.',
       });
-    } catch (error: any) {
+    } catch {
       showAlert({
         type: 'error',
         title: 'Erro ao enviar',
@@ -113,7 +110,7 @@ export default function ForgotPassword() {
       }
 
       router.push('/reset-password');
-    } catch (error: any) {
+    } catch {
       showAlert({
         type: 'error',
         title: 'Código inválido',
@@ -184,14 +181,16 @@ export default function ForgotPassword() {
           keyboardShouldPersistTaps="handled"
         >
           {/* Back Button */}
-          <TouchableOpacity 
+          <TouchableOpacity
             onPress={() => step === 'otp' ? setStep('email') : router.back()}
-            style={{ 
-              width: 44, height: 44, borderRadius: 22, 
-              backgroundColor: 'rgba(255,255,255,0.1)', 
+            style={{
+              width: 44, height: 44, borderRadius: 22,
+              backgroundColor: 'rgba(255,255,255,0.1)',
               alignItems: 'center', justifyContent: 'center',
               marginBottom: 24, alignSelf: 'flex-start',
             }}
+            accessibilityRole="button"
+            accessibilityLabel="Voltar"
           >
             <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
           </TouchableOpacity>
@@ -262,9 +261,12 @@ export default function ForgotPassword() {
                     )}
                   />
                   {emailForm.formState.errors.email && (
-                    <Text style={{ color: '#E05555', fontSize: 11, fontWeight: '600', marginTop: 6, marginLeft: 4 }}>
-                      {emailForm.formState.errors.email.message}
-                    </Text>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 6, marginLeft: 4, gap: 4 }}>
+                      <Ionicons name="alert-circle" size={13} color="#E05555" />
+                      <Text style={{ color: '#E05555', fontSize: 11, fontWeight: '600' }}>
+                        {emailForm.formState.errors.email.message}
+                      </Text>
+                    </View>
                   )}
                 </View>
 
@@ -273,6 +275,9 @@ export default function ForgotPassword() {
                   disabled={loading}
                   activeOpacity={0.85}
                   style={{ borderRadius: 999, overflow: 'hidden' }}
+                  accessibilityRole="button"
+                  accessibilityLabel="Enviar código"
+                  accessibilityState={{ disabled: loading, busy: loading }}
                 >
                   <LinearGradient
                     colors={loading ? ['#C5D0D3', '#C5D0D3'] : ['#0D4F5C', '#1A6B7A']}
@@ -347,9 +352,12 @@ export default function ForgotPassword() {
                     </View>
 
                     {otpForm.formState.errors.code && (
-                      <Text style={{ color: '#E05555', fontSize: 11, fontWeight: '600', marginTop: 12, textAlign: 'center' }}>
-                        {otpForm.formState.errors.code.message}
-                      </Text>
+                      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop: 12, gap: 4 }}>
+                        <Ionicons name="alert-circle" size={13} color="#E05555" />
+                        <Text style={{ color: '#E05555', fontSize: 11, fontWeight: '600' }}>
+                          {otpForm.formState.errors.code.message}
+                        </Text>
+                      </View>
                     )}
                   </View>
 
@@ -358,6 +366,9 @@ export default function ForgotPassword() {
                   disabled={loading}
                   activeOpacity={0.85}
                   style={{ borderRadius: 999, overflow: 'hidden', marginTop: 8 }}
+                  accessibilityRole="button"
+                  accessibilityLabel="Verificar código"
+                  accessibilityState={{ disabled: loading, busy: loading }}
                 >
                   <LinearGradient
                     colors={loading ? ['#C5D0D3', '#C5D0D3'] : ['#0D4F5C', '#1A6B7A']}
@@ -381,6 +392,8 @@ export default function ForgotPassword() {
                     otpForm.reset();
                   }}
                   style={{ marginTop: 24, alignItems: 'center' }}
+                  accessibilityRole="button"
+                  accessibilityLabel="Não recebeu o código? Enviar novamente"
                 >
                   <Text style={{ fontSize: 13, color: '#6B7F85', fontWeight: '600' }}>
                     Não recebeu? <Text style={{ color: '#0D4F5C', fontWeight: '800' }}>Enviar novamente</Text>

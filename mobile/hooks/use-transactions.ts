@@ -16,6 +16,7 @@ export function useTransactions(initialFilters: TransactionFilters = { type: 'al
   const { user } = useAuthStore();
   const [transactions, setTransactions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [filters, setFilters] = useState<TransactionFilters>(initialFilters);
 
   const fetchTransactions = useCallback(async () => {
@@ -24,6 +25,7 @@ export function useTransactions(initialFilters: TransactionFilters = { type: 'al
     }
     try {
       setLoading(true);
+      setError(null);
       let query = supabase
         .from('transactions')
         .select('*, clients(name)')
@@ -62,6 +64,7 @@ export function useTransactions(initialFilters: TransactionFilters = { type: 'al
       setTransactions(data || []);
     } catch (error: any) {
       console.error('[useTransactions] Erro ao buscar transações:', error.message || error);
+      setError(error.message || 'Não foi possível carregar as transações.');
     } finally {
       setLoading(false);
     }
@@ -126,10 +129,11 @@ export function useTransactions(initialFilters: TransactionFilters = { type: 'al
     fetchTransactions();
   };
 
-  return { 
-    transactions, 
-    loading, 
-    fetchTransactions, 
+  return {
+    transactions,
+    loading,
+    error,
+    fetchTransactions,
     addTransaction,
     deleteTransaction,
     updateTransaction,

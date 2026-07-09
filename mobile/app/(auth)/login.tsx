@@ -9,7 +9,6 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import {
     Animated,
-    Dimensions,
     KeyboardAvoidingView,
     Platform,
     ScrollView,
@@ -23,8 +22,6 @@ import * as z from 'zod';
 import { supabase } from '../../lib/supabase';
 import { useAuthStore } from '../../stores/auth';
 import { useUIStore } from '../../stores/ui';
-
-const { height: SCREEN_H } = Dimensions.get('window');
 
 const loginSchema = z.object({
   email: z.string().email('E-mail inválido'),
@@ -53,7 +50,7 @@ export default function Login() {
         Animated.timing(formOpacity, { toValue: 1, duration: 400, useNativeDriver: true }),
       ]),
     ]).start();
-  }, []);
+  }, [logoAnim, formAnim, formOpacity]);
 
   const { control, handleSubmit, formState: { errors } } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
@@ -68,7 +65,7 @@ export default function Login() {
       });
       if (error) throw error;
       setSession(authData.session);
-    } catch (error: any) {
+    } catch {
       showAlert({
         type: 'error',
         title: 'Não consegui entrar',
@@ -178,9 +175,12 @@ export default function Login() {
                   )}
                 />
                 {errors.email && (
-                  <Text style={{ color: '#E05555', fontSize: 11, fontWeight: '600', marginTop: 6, marginLeft: 4 }}>
-                    {errors.email.message}
-                  </Text>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 6, marginLeft: 4, gap: 4 }}>
+                    <Ionicons name="alert-circle" size={13} color="#E05555" />
+                    <Text style={{ color: '#E05555', fontSize: 11, fontWeight: '600' }}>
+                      {errors.email.message}
+                    </Text>
+                  </View>
                 )}
               </View>
 
@@ -215,16 +215,24 @@ export default function Login() {
                         placeholderTextColor="#A0B0B5"
                         autoComplete="password"
                       />
-                      <TouchableOpacity onPress={() => setShowPass(!showPass)} hitSlop={{ top: 10, right: 10, bottom: 10, left: 10 }}>
+                      <TouchableOpacity
+                        onPress={() => setShowPass(!showPass)}
+                        hitSlop={{ top: 10, right: 10, bottom: 10, left: 10 }}
+                        accessibilityRole="button"
+                        accessibilityLabel={showPass ? 'Ocultar senha' : 'Mostrar senha'}
+                      >
                         <Ionicons name={showPass ? 'eye-off-outline' : 'eye-outline'} size={18} color="#A0B0B5" />
                       </TouchableOpacity>
                     </View>
                   )}
                 />
                 {errors.password && (
-                  <Text style={{ color: '#E05555', fontSize: 11, fontWeight: '600', marginTop: 6, marginLeft: 4 }}>
-                    {errors.password.message}
-                  </Text>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 6, marginLeft: 4, gap: 4 }}>
+                    <Ionicons name="alert-circle" size={13} color="#E05555" />
+                    <Text style={{ color: '#E05555', fontSize: 11, fontWeight: '600' }}>
+                      {errors.password.message}
+                    </Text>
+                  </View>
                 )}
               </View>
 
@@ -232,6 +240,8 @@ export default function Login() {
                 onPress={() => router.push('/forgot-password')}
                 style={{ alignSelf: 'flex-end', marginBottom: 24 }}
                 activeOpacity={0.7}
+                accessibilityRole="button"
+                accessibilityLabel="Esqueci minha senha"
               >
                 <Text style={{ fontSize: 13, color: '#0D4F5C', fontWeight: '700' }}>
                   Esqueci minha senha
@@ -244,6 +254,9 @@ export default function Login() {
                 disabled={loading}
                 activeOpacity={0.85}
                 style={{ borderRadius: 999, overflow: 'hidden' }}
+                accessibilityRole="button"
+                accessibilityLabel="Entrar no Corre"
+                accessibilityState={{ disabled: loading, busy: loading }}
               >
                 <LinearGradient
                   colors={loading ? ['#C5D0D3', '#C5D0D3'] : ['#0D4F5C', '#1A6B7A']}
@@ -276,6 +289,8 @@ export default function Login() {
                 onPress={() => router.push('/signup')}
                 style={{ paddingVertical: 16, alignItems: 'center' }}
                 activeOpacity={0.7}
+                accessibilityRole="button"
+                accessibilityLabel="Não tem conta? Cadastre-se"
               >
                 <Text style={{ fontSize: 14, color: '#6B7F85', fontWeight: '600' }}>
                   Não tem conta?{' '}

@@ -10,7 +10,6 @@ import MaskInput from 'react-native-mask-input';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ScreenHeader } from '@/components/screen-header';
-import { useAppointments } from '@/hooks/use-appointments';
 import { Client, useClients } from '@/hooks/use-clients';
 import { useTransactions } from '@/hooks/use-transactions';
 import { getFriendlyErrorMessage } from '@/lib/errors';
@@ -45,11 +44,8 @@ export default function DetalhesClienteScreen() {
       startDate: formatToDb(startDate),
       endDate: formatToDb(endDate),
     }));
-  }, [startDate, endDate]);
+  }, [startDate, endDate, setFilters]);
 
-  const { appointments } = useAppointments();
-
-  const clientAppointments = appointments.filter(a => a.client_id === clientId);
   const clientTransactions = transactions.filter(t => t.client_id === clientId && t.type === 'income');
 
   const totalSpent = clientTransactions.reduce((acc, curr) => acc + Number(curr.amount), 0);
@@ -59,7 +55,7 @@ export default function DetalhesClienteScreen() {
       fetchClients();
     });
     return unsubscribe;
-  }, [navigation]);
+  }, [navigation, fetchClients]);
 
   useEffect(() => {
     const foundClient = clients.find(c => c.id === clientId);

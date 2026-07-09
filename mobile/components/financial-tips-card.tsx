@@ -45,17 +45,23 @@ export function FinancialTipsCard() {
               <Ionicons name={currentTip.icon as any || 'bulb-outline'} size={28} color="white" />
             </View>
             <View className="flex-row space-x-2">
-              <TouchableOpacity 
+              <TouchableOpacity
                 onPress={handlePrev}
                 className="bg-white/10 p-2 rounded-xl"
                 activeOpacity={0.7}
+                hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
+                accessibilityLabel="Dica anterior"
+                accessibilityRole="button"
               >
                 <Ionicons name="chevron-back" size={20} color="white" />
               </TouchableOpacity>
-              <TouchableOpacity 
+              <TouchableOpacity
                 onPress={handleNext}
                 className="bg-white/10 p-2 rounded-xl"
                 activeOpacity={0.7}
+                hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
+                accessibilityLabel="Próxima dica"
+                accessibilityRole="button"
               >
                 <Ionicons name="chevron-forward" size={20} color="white" />
               </TouchableOpacity>

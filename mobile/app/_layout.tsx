@@ -9,7 +9,6 @@ import { useAuth } from '../hooks/use-auth';
 
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { debugListScheduledNotifications, requestNotificationPermission, setupAndroidNotificationChannel } from '@/hooks/use-notifications';
-import { initializeAdMob, requestAdsConsent } from '@/lib/admob';
 import * as Notifications from 'expo-notifications';
 import { useEffect, useRef, useState } from 'react';
 import SplashScreen from './splash';
@@ -26,13 +25,6 @@ export default function RootLayout() {
   const responseListener = useRef<Notifications.EventSubscription | null>(null);
 
   useEffect(() => {
-    // 0. Solicita consentimento (GDPR/LGPD) e só então inicializa o AdMob
-    requestAdsConsent().then((canRequestAds) => {
-      if (canRequestAds) {
-        initializeAdMob();
-      }
-    });
-
     // 1. Cria canal Android (obrigatório Android 8+)
     setupAndroidNotificationChannel();
 

@@ -75,13 +75,6 @@ export default {
           iosDisplayInForeground: true,
         },
       ],
-      [
-        "react-native-google-mobile-ads",
-        {
-          androidAppId: "ca-app-pub-3912743282778596~7066626902",
-          iosAppId: "ca-app-pub-3940256099942544~1458002511",
-        },
-      ],
     ],
     experiments: {
       typedRoutes: true,

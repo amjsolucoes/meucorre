@@ -11,8 +11,8 @@ export default function ExclusaoDeContaPage() {
       <section>
         <h2>Já tem o app instalado?</h2>
         <p>
-          A forma mais rápida de excluir sua conta é direto pelo app: abra o Meu Corre, vá em{' '}
-          <strong>Perfil → Excluir Conta</strong> e confirme. A exclusão acontece na hora.
+          A forma mais rápida de excluir sua conta é direto pelo app: abra o Meu Corre, toque no menu (ícone ☰) e selecione{' '}
+          <strong>Excluir Conta</strong> e confirme. A exclusão acontece na hora.
         </p>
       </section>
 

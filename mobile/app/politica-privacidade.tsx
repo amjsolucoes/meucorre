@@ -83,6 +83,9 @@ export default function PoliticaPrivacidadeScreen() {
                 • <Text style={{ fontWeight: '700' }}>Dados de clientes:</Text> informações dos clientes que você cadastrar
               </Text>
               <Text style={{ fontSize: 14, fontWeight: '400', color: '#3A4F55', lineHeight: 22 }}>
+                • <Text style={{ fontWeight: '700' }}>Contatos:</Text> se você usar o recurso de importar contatos, acessamos sua agenda do celular apenas para facilitar o cadastro de clientes — só com sua permissão explícita
+              </Text>
+              <Text style={{ fontSize: 14, fontWeight: '400', color: '#3A4F55', lineHeight: 22 }}>
                 • <Text style={{ fontWeight: '700' }}>Dados de uso:</Text> como você interage com o app
               </Text>
             </View>

@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import type { ReactNode } from 'react';
 
 export function LegalPage({
@@ -11,12 +12,12 @@ export function LegalPage({
 }) {
   return (
     <main className="mx-auto max-w-2xl px-6 py-20">
-      <a
+      <Link
         href="/"
         className="font-body text-sm font-semibold text-primary underline-offset-2 hover:underline"
       >
         ← Voltar para o início
-      </a>
+      </Link>
       <h1 className="mt-6 font-display text-3xl font-extrabold text-text-primary sm:text-4xl">
         {title}
       </h1>

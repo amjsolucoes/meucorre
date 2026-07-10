@@ -9,7 +9,7 @@ const LINKS = [
 
 export function Nav() {
   return (
-    <header className="sticky top-0 z-50 border-b border-transparent bg-white/80 backdrop-blur-md">
+    <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md">
       <nav className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
         <Link href="/" className="flex items-center gap-2">
           <Image src="/meu-corre-logo.png" alt="Meu Corre" width={160} height={65} priority />

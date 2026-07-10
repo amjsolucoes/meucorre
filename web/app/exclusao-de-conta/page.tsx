@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import { LegalPage } from '@/components/legal-page';
 
 export const metadata: Metadata = {
@@ -28,9 +29,9 @@ export default function ExclusaoDeContaPage() {
           </a>{' '}
           a partir do mesmo endereço cadastrado na sua conta, pedindo a exclusão. Confirmamos o
           pedido e removemos seus dados em até 30 dias — o mesmo prazo descrito na nossa{' '}
-          <a href="/politica-de-privacidade" className="font-semibold text-primary">
+          <Link href="/politica-de-privacidade" className="font-semibold text-primary">
             Política de Privacidade
-          </a>
+          </Link>
           .
         </p>
       </section>

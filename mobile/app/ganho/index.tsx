@@ -1,3 +1,6 @@
+import { PaymentMethodSelector, type PaymentMethod } from '@/components/payment-method-selector';
+import { SaveButton } from '@/components/save-button';
+import { GroupedCard, GroupedRow, SectionLabel } from '@/components/ui/form-section';
 import { ScreenHeader } from '@/components/screen-header';
 import { useClients } from '@/hooks/use-clients';
 import { useProfile } from '@/hooks/use-profile';
@@ -22,13 +25,13 @@ export default function NovoGanhoScreen() {
   const { clients, loading: loadingClients } = useClients();
   const { profile } = useProfile();
   const { user } = useAuthStore();
-  
+
   const [loading, setLoading] = useState(false);
   const [amount, setAmount] = useState('');
   const [title, setTitle] = useState('');
-  const [paymentMethod, setPaymentMethod] = useState<'pix' | 'cash' | 'card'>('pix');
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('pix');
   const [status, setStatus] = useState<'concluido' | 'pendente'>('concluido');
-  
+
   const [incomeMode, setIncomeMode] = useState<'client' | 'quick'>('client');
   const [selectedClient, setSelectedClient] = useState<any>(null);
   const [selectedServiceType, setSelectedServiceType] = useState<string>('');
@@ -57,28 +60,28 @@ export default function NovoGanhoScreen() {
 
   const handleSave = async () => {
     if (!amount || parseFloat(amount.replace(/[^\d,]/g, '').replace(',', '.')) <= 0) {
-      showAlert({ 
-        type: 'error', 
-        title: 'Valor inválido', 
-        message: 'Por favor, insira o valor do seu corre.' 
+      showAlert({
+        type: 'error',
+        title: 'Valor inválido',
+        message: 'Por favor, insira o valor do seu corre.'
       });
       return;
     }
-    
+
     if (incomeMode === 'client' && !selectedClient && !selectedServiceType) {
-      showAlert({ 
-        type: 'info', 
-        title: 'Faltam dados', 
-        message: 'Selecione um cliente ou o tipo de serviço que você fez.' 
+      showAlert({
+        type: 'info',
+        title: 'Faltam dados',
+        message: 'Selecione um cliente ou o tipo de serviço que você fez.'
       });
       return;
     }
-    
+
     if (incomeMode === 'quick' && !title) {
-      showAlert({ 
-        type: 'info', 
-        title: 'O que você fez?', 
-        message: 'Dê uma descrição rápida para esse ganho.' 
+      showAlert({
+        type: 'info',
+        title: 'O que você fez?',
+        message: 'Dê uma descrição rápida para esse ganho.'
       });
       return;
     }
@@ -86,7 +89,7 @@ export default function NovoGanhoScreen() {
     try {
       setLoading(true);
       const numericAmount = parseFloat(amount.replace(/[^\d,]/g, '').replace(',', '.'));
-      
+
       await addTransaction({
         type: 'income',
         amount: numericAmount,
@@ -121,17 +124,16 @@ export default function NovoGanhoScreen() {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#FFFFFF' }} edges={['top']}>
-      {/* Hero Header */}
+      {/* Hero */}
       <LinearGradient
-        colors={['#0D4F5C', '#1A6B7A']}
+        colors={['#0A3D47', '#146B7D']}
         start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
       >
         <ScreenHeader title="Novo Ganho" subtitle="Registre seu corre" transparent />
 
-        {/* Amount Card flutuante */}
-        <View style={{ paddingHorizontal: 20, paddingBottom: 28, alignItems: 'center' }}>
-          <Text style={{ fontSize: 11, fontWeight: '800', color: 'rgba(255,255,255,0.6)', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 8 }}>
-            VALOR DO GANHO
+        <View style={{ paddingHorizontal: 20, paddingBottom: 30, alignItems: 'center' }}>
+          <Text style={{ fontSize: 11, fontWeight: '700', color: 'rgba(255,255,255,0.55)', letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 8 }}>
+            Valor do ganho
           </Text>
           <MaskInput
             value={amount}
@@ -139,10 +141,11 @@ export default function NovoGanhoScreen() {
             mask={Masks.BRL_CURRENCY}
             keyboardType="numeric"
             placeholder="R$ 0,00"
-            style={{ fontSize: 44, fontWeight: '900', color: '#FFFFFF', textAlign: 'center', letterSpacing: -1 }}
+            style={{ fontSize: 44, fontWeight: '700', color: '#FFFFFF', textAlign: 'center', letterSpacing: -1, fontVariant: ['tabular-nums'] }}
             placeholderTextColor="rgba(255,255,255,0.35)"
             accessibilityLabel="Campo para digitar o valor do ganho"
           />
+          <View style={{ width: 56, height: 2, backgroundColor: 'rgba(255,255,255,0.25)', borderRadius: 2, marginTop: 12 }} />
         </View>
       </LinearGradient>
 
@@ -151,222 +154,164 @@ export default function NovoGanhoScreen() {
         style={{ flex: 1 }}
       >
         <ScrollView
-          style={{ flex: 1, paddingHorizontal: 20, marginTop: 16 }}
+          style={{ flex: 1, paddingHorizontal: 20, marginTop: 20 }}
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
         >
           {/* Mode Selection */}
-          <View style={{ flexDirection: 'row', backgroundColor: '#F5F7F8', padding: 5, borderRadius: 16, borderWidth: 1, borderColor: '#E2E8EA', marginBottom: 22 }}>
+          <View className="flex-row bg-surface p-1 rounded-2xl border border-border mb-6">
             <TouchableOpacity
               onPress={() => setIncomeMode('client')}
-              style={[
-                { flex: 1, paddingVertical: 12, borderRadius: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6 },
-                incomeMode === 'client' && { backgroundColor: '#0D4F5C', shadowColor: '#0D4F5C', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 8, elevation: 6 }
-              ]}
+              className="flex-1 py-3 rounded-xl flex-row items-center justify-center"
+              style={{ gap: 6, backgroundColor: incomeMode === 'client' ? '#0D4F5C' : 'transparent' }}
               accessibilityLabel="Modo cliente"
+              accessibilityRole="button"
+              accessibilityState={{ selected: incomeMode === 'client' }}
             >
-              <Ionicons name="people" size={16} color={incomeMode === 'client' ? 'white' : '#6B7F85'} />
-              <Text style={{ fontSize: 11, fontWeight: '800', color: incomeMode === 'client' ? 'white' : '#6B7F85', letterSpacing: 0.5 }}>COM CLIENTE</Text>
+              <Ionicons name="people" size={15} color={incomeMode === 'client' ? 'white' : '#6B7F85'} />
+              <Text className={`text-[11px] font-bold tracking-wide ${incomeMode === 'client' ? 'text-white' : 'text-text-secondary'}`}>COM CLIENTE</Text>
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => setIncomeMode('quick')}
-              style={[
-                { flex: 1, paddingVertical: 12, borderRadius: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6 },
-                incomeMode === 'quick' && { backgroundColor: '#7BC67A', shadowColor: '#7BC67A', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 8, elevation: 6 }
-              ]}
+              className="flex-1 py-3 rounded-xl flex-row items-center justify-center"
+              style={{ gap: 6, backgroundColor: incomeMode === 'quick' ? '#4C8A4B' : 'transparent' }}
               accessibilityLabel="Modo rápido"
+              accessibilityRole="button"
+              accessibilityState={{ selected: incomeMode === 'quick' }}
             >
-              <Ionicons name="flash" size={16} color={incomeMode === 'quick' ? 'white' : '#6B7F85'} />
-              <Text style={{ fontSize: 11, fontWeight: '800', color: incomeMode === 'quick' ? 'white' : '#6B7F85', letterSpacing: 0.5 }}>CORRE RÁPIDO</Text>
+              <Ionicons name="flash" size={15} color={incomeMode === 'quick' ? 'white' : '#6B7F85'} />
+              <Text className={`text-[11px] font-bold tracking-wide ${incomeMode === 'quick' ? 'text-white' : 'text-text-secondary'}`}>CORRE RÁPIDO</Text>
             </TouchableOpacity>
           </View>
 
           {incomeMode === 'client' ? (
-            <>
-              {/* Client Selection */}
-              <View className="mb-5">
-                <Text className="text-text-secondary font-bold text-[10px] uppercase tracking-wider mb-2 ml-1">QUEM VOCÊ ATENDEU?</Text>
-                <TouchableOpacity 
+            <View className="mb-6">
+              <SectionLabel>Detalhes do corre</SectionLabel>
+              <GroupedCard>
+                <GroupedRow
+                  icon="person"
+                  iconColor="#0D4F5C"
+                  iconBg="rgba(13, 79, 92, 0.08)"
+                  text={selectedClient ? selectedClient.name : 'Selecionar cliente...'}
+                  muted={!selectedClient}
                   onPress={() => setShowClientModal(true)}
-                  className="bg-surface p-4 rounded-[14px] flex-row items-center justify-between shadow-sm"
-                >
-                  <View className="flex-row items-center">
-                    <View className="w-10 h-10 bg-[#0D4F5C]/10 rounded-full items-center justify-center mr-3">
-                      <Ionicons name="person" size={20} color="#0D4F5C" />
-                    </View>
-                    <Text className={`text-base font-bold ${selectedClient ? 'text-text-primary' : 'text-text-hint'}`}>
-                      {selectedClient ? selectedClient.name : 'Selecionar cliente...'}
-                    </Text>
-                  </View>
-                  <Ionicons name="chevron-forward" size={18} color="#A0B0B5" />
-                </TouchableOpacity>
-              </View>
-
-              {/* Service Type Selection */}
-              <View className="mb-5">
-                <Text className="text-text-secondary font-bold text-[10px] uppercase tracking-wider mb-2 ml-1">O QUE FOI FEITO?</Text>
-                <TouchableOpacity 
-                  onPress={() => setShowServiceModal(true)}
-                  className="bg-surface p-4 rounded-[14px] flex-row items-center justify-between shadow-sm"
-                >
-                  <View className="flex-row items-center">
-                    <View className="w-10 h-10 bg-[#7BC67A]/15 rounded-full items-center justify-center mr-3">
-                      <Ionicons name="construct" size={20} color="#7BC67A" />
-                    </View>
-                    <Text className={`text-base font-bold ${selectedServiceType ? 'text-text-primary' : 'text-text-hint'}`}>
-                      {selectedServiceType ? selectedServiceType : 'Tipo de serviço...'}
-                    </Text>
-                  </View>
-                  <Ionicons name="chevron-forward" size={18} color="#A0B0B5" />
-                </TouchableOpacity>
-                <TextInput
-                  placeholder="Observação (opcional)"
-                  value={title}
-                  onChangeText={setTitle}
-                  className="bg-surface p-4 rounded-[10px] mt-3 text-base font-semibold text-text-primary shadow-sm"
-                  placeholderTextColor="#A0B0B5"
                 />
-              </View>
-            </>
+                <GroupedRow
+                  icon="construct"
+                  iconColor="#4C8A4B"
+                  iconBg="rgba(76, 138, 75, 0.1)"
+                  text={selectedServiceType || 'Tipo de serviço...'}
+                  muted={!selectedServiceType}
+                  onPress={() => setShowServiceModal(true)}
+                />
+                <View className="flex-row items-center px-4 py-3.5 border-b border-border">
+                  <View className="w-9 h-9 rounded-full items-center justify-center mr-3" style={{ backgroundColor: '#F5F7F8' }}>
+                    <Ionicons name="create-outline" size={17} color="#6B7F85" />
+                  </View>
+                  <TextInput
+                    placeholder="Observação (opcional)"
+                    value={title}
+                    onChangeText={setTitle}
+                    className="flex-1 text-[15px] font-semibold text-text-primary"
+                    placeholderTextColor="#A0B0B5"
+                  />
+                </View>
+                <GroupedRow
+                  icon="calendar"
+                  iconColor="#4C8A4B"
+                  iconBg="rgba(76, 138, 75, 0.1)"
+                  text={format(date, "EEEE, d 'de' MMMM", { locale: ptBR })}
+                  onPress={() => setShowDatePicker(true)}
+                  isLast
+                />
+              </GroupedCard>
+            </View>
           ) : (
-            <View className="mb-5">
-              <Text className="text-text-secondary font-bold text-[10px] uppercase tracking-wider mb-2 ml-1">O QUE VOCÊ VENDEU / FEZ?</Text>
-              <TextInput
-                placeholder="Ex: Venda de Avon, Faxina rápida..."
-                value={title}
-                onChangeText={setTitle}
-                className="bg-surface p-5 rounded-[14px] text-base font-semibold text-text-primary shadow-sm"
-                placeholderTextColor="#A0B0B5"
-                multiline
-                numberOfLines={3}
-              />
+            <View className="mb-6">
+              <SectionLabel>O que você vendeu / fez?</SectionLabel>
+              <GroupedCard>
+                <View className="px-4 py-3.5 border-b border-border">
+                  <TextInput
+                    placeholder="Ex: Venda de Avon, Faxina rápida..."
+                    value={title}
+                    onChangeText={setTitle}
+                    className="text-[15px] font-semibold text-text-primary min-h-[60px]"
+                    placeholderTextColor="#A0B0B5"
+                    multiline
+                    numberOfLines={3}
+                    textAlignVertical="top"
+                  />
+                </View>
+                <GroupedRow
+                  icon="calendar"
+                  iconColor="#4C8A4B"
+                  iconBg="rgba(76, 138, 75, 0.1)"
+                  text={format(date, "EEEE, d 'de' MMMM", { locale: ptBR })}
+                  onPress={() => setShowDatePicker(true)}
+                  isLast
+                />
+              </GroupedCard>
             </View>
           )}
 
-          {/* Date Selection */}
-          <View className="mb-5">
-            <Text className="text-text-secondary font-bold text-[10px] uppercase tracking-wider mb-2 ml-1">QUANDO FOI ISSO?</Text>
-            <TouchableOpacity 
-              onPress={() => setShowDatePicker(true)}
-              activeOpacity={0.7}
-              className="bg-surface p-4 rounded-[14px] flex-row items-center justify-between shadow-sm"
-            >
-              <View className="flex-row items-center">
-                <View className="w-10 h-10 bg-[#7BC67A]/15 rounded-full items-center justify-center mr-3">
-                  <Ionicons name="calendar" size={20} color="#7BC67A" />
-                </View>
-                <Text className="text-base font-bold text-text-primary">
-                  {format(date, "EEEE, d 'de' MMMM", { locale: ptBR })}
-                </Text>
-              </View>
-              <Ionicons name="chevron-forward" size={18} color="#A0B0B5" />
-            </TouchableOpacity>
-
-            {showDatePicker && (
-              <DateTimePicker
-                value={date}
-                mode="date"
-                display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-                onChange={(event, selectedDate) => {
-                  setShowDatePicker(Platform.OS === 'ios');
-                  if (selectedDate) {
-                    setDate(selectedDate);
-                  }
-                }}
-                maximumDate={new Date()}
-              />
-            )}
-          </View>
+          {showDatePicker && (
+            <DateTimePicker
+              value={date}
+              mode="date"
+              display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+              onChange={(event, selectedDate) => {
+                setShowDatePicker(Platform.OS === 'ios');
+                if (selectedDate) {
+                  setDate(selectedDate);
+                }
+              }}
+              maximumDate={new Date()}
+            />
+          )}
 
           {/* Status Selection */}
-          <View className="mb-5">
-            <Text className="text-text-secondary font-bold text-[10px] uppercase tracking-wider mb-2 ml-1">STATUS DA ATIVIDADE</Text>
-            <View className="flex-row bg-surface p-1.5 rounded-[14px] shadow-sm">
-              <TouchableOpacity 
+          <View className="mb-6">
+            <SectionLabel>Status da atividade</SectionLabel>
+            <View className="flex-row bg-surface p-1 rounded-2xl border border-border">
+              <TouchableOpacity
                 onPress={() => setStatus('concluido')}
-                className={`flex-1 py-3 rounded-[10px] flex-row items-center justify-center ${status === 'concluido' ? 'bg-[#7BC67A]' : ''}`}
+                className="flex-1 py-3 rounded-xl flex-row items-center justify-center"
+                style={{ backgroundColor: status === 'concluido' ? '#4C8A4B' : 'transparent' }}
                 accessibilityLabel="Marcar atividade como concluída"
                 accessibilityRole="button"
+                accessibilityState={{ selected: status === 'concluido' }}
               >
-                <Ionicons name="checkmark-circle" size={18} color={status === 'concluido' ? 'white' : '#6B7F85'} />
-                <Text className={`ml-2 text-xs font-black ${status === 'concluido' ? 'text-white' : 'text-text-secondary'}`}>CONCLUÍDO</Text>
+                <Ionicons name="checkmark-circle" size={16} color={status === 'concluido' ? 'white' : '#6B7F85'} />
+                <Text className={`ml-2 text-[11px] font-bold tracking-wide ${status === 'concluido' ? 'text-white' : 'text-text-secondary'}`}>CONCLUÍDO</Text>
               </TouchableOpacity>
-              <TouchableOpacity 
+              <TouchableOpacity
                 onPress={() => setStatus('pendente')}
-                className={`flex-1 py-3 rounded-[10px] flex-row items-center justify-center ${status === 'pendente' ? 'bg-[#F0A500]' : ''}`}
+                className="flex-1 py-3 rounded-xl flex-row items-center justify-center"
+                style={{ backgroundColor: status === 'pendente' ? '#B07A00' : 'transparent' }}
                 accessibilityLabel="Marcar serviço como pendente"
                 accessibilityRole="button"
+                accessibilityState={{ selected: status === 'pendente' }}
               >
-                <Ionicons name="time" size={18} color={status === 'pendente' ? 'white' : '#6B7F85'} />
-                <Text className={`ml-2 text-xs font-black ${status === 'pendente' ? 'text-white' : 'text-text-secondary'}`}>PENDENTE</Text>
+                <Ionicons name="time" size={16} color={status === 'pendente' ? 'white' : '#6B7F85'} />
+                <Text className={`ml-2 text-[11px] font-bold tracking-wide ${status === 'pendente' ? 'text-white' : 'text-text-secondary'}`}>PENDENTE</Text>
               </TouchableOpacity>
             </View>
           </View>
 
           {/* Payment Method */}
-          <View className="mb-6">
-            <Text className="text-text-secondary font-bold text-[10px] uppercase tracking-wider mb-2 ml-1">COMO RECEBEU?</Text>
-            <View className="flex-row justify-between gap-3">
-              {[
-                { id: 'pix', label: 'PIX', icon: 'flash', color: '#0D4F5C', bg: 'rgba(13, 79, 92, 0.08)' },
-                { id: 'cash', label: 'DINHEIRO', icon: 'cash', color: '#7BC67A', bg: 'rgba(123, 198, 122, 0.12)' },
-                { id: 'card', label: 'CARTÃO', icon: 'card', color: '#F0A500', bg: 'rgba(240, 165, 0, 0.1)' },
-              ].map((item) => {
-                const isSelected = paymentMethod === item.id;
-                return (
-                  <TouchableOpacity
-                    key={item.id}
-                    onPress={() => setPaymentMethod(item.id as any)}
-                    activeOpacity={0.7}
-                    className={`flex-1 p-4 rounded-[14px] items-center justify-center border ${
-                      isSelected ? 'border-transparent' : 'bg-white border-border'
-                    }`}
-                    style={isSelected ? { backgroundColor: item.color, elevation: 2 } : {}}
-                  >
-                    <View 
-                      className={`w-10 h-10 rounded-full items-center justify-center mb-2`}
-                      style={{ backgroundColor: isSelected ? 'rgba(255,255,255,0.2)' : item.bg }}
-                    >
-                      <Ionicons 
-                        name={item.icon as any} 
-                        size={18} 
-                        color={isSelected ? 'white' : item.color} 
-                      />
-                    </View>
-                    <Text className={`text-[10px] font-black ${
-                      isSelected ? 'text-white' : 'text-text-secondary'
-                    }`}>
-                      {item.label}
-                    </Text>
-                  </TouchableOpacity>
-                );
-              })}
-            </View>
+          <View className="mb-2">
+            <SectionLabel>Como recebeu?</SectionLabel>
+            <PaymentMethodSelector value={paymentMethod} onChange={setPaymentMethod} />
           </View>
 
-          <TouchableOpacity
+          <SaveButton
             onPress={handleSave}
-            disabled={loading}
-            activeOpacity={0.85}
-            style={{ borderRadius: 999, overflow: 'hidden', marginTop: 24, marginBottom: 100, shadowColor: '#0D4F5C', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.3, shadowRadius: 16, elevation: 10 }}
-            accessibilityLabel="Salvar ganho"
-          >
-            <LinearGradient
-              colors={loading ? ['#C5D0D3', '#C5D0D3'] : ['#7BC67A', '#5AA858']}
-              start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
-              style={{ height: 58, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 10 }}
-            >
-              {loading ? (
-                <ActivityIndicator color="white" />
-              ) : (
-                <>
-                  <Ionicons name="checkmark-circle" size={22} color="white" />
-                  <Text style={{ color: 'white', fontSize: 16, fontWeight: '800', letterSpacing: 0.5 }}>Salvar Ganho</Text>
-                </>
-              )}
-            </LinearGradient>
-          </TouchableOpacity>
-
+            loading={loading}
+            label="Salvar Ganho"
+            icon="checkmark-circle"
+            colors={['#4C8A4B', '#3D7A3C']}
+            shadowColor="#2E5D3D"
+          />
         </ScrollView>
       </KeyboardAvoidingView>
 
@@ -374,27 +319,27 @@ export default function NovoGanhoScreen() {
       {/* Client Modal */}
       <Modal visible={showClientModal} animationType="slide" transparent>
         <View className="flex-1 bg-black/50 justify-end">
-          <View className="bg-white rounded-t-[20px] h-[75%] p-8 shadow-2xl">
-            <View className="flex-row justify-between items-center mb-6">
-              <Text className="text-2xl font-black text-text-primary">Selecionar Cliente</Text>
-              <TouchableOpacity onPress={() => setShowClientModal(false)}>
-                <Ionicons name="close-circle" size={32} color="#A0B0B5" />
+          <View className="bg-white rounded-t-[24px] h-[75%] p-6 shadow-2xl">
+            <View className="flex-row justify-between items-center mb-5 px-2">
+              <Text className="text-xl font-bold text-text-primary">Selecionar Cliente</Text>
+              <TouchableOpacity onPress={() => setShowClientModal(false)} accessibilityLabel="Fechar">
+                <Ionicons name="close-circle" size={28} color="#A0B0B5" />
               </TouchableOpacity>
             </View>
-            
-            <View className="mb-5">
-              <View className="flex-row bg-surface rounded-[10px] items-center px-4 py-3 shadow-sm">
-                <Ionicons name="search-outline" size={20} color="#6B7F85" />
+
+            <View className="mb-4 px-2">
+              <View className="flex-row bg-surface rounded-xl items-center px-4 py-3 border border-border">
+                <Ionicons name="search-outline" size={18} color="#6B7F85" />
                 <TextInput
                   placeholder="Pesquisar cliente..."
                   value={clientSearch}
                   onChangeText={setClientSearch}
-                  className="flex-1 ml-3 text-base font-semibold text-text-primary"
+                  className="flex-1 ml-3 text-[15px] font-medium text-text-primary"
                   placeholderTextColor="#A0B0B5"
                 />
                 {clientSearch.length > 0 && (
-                  <TouchableOpacity onPress={() => setClientSearch('')}>
-                    <Ionicons name="close-circle" size={20} color="#A0B0B5" />
+                  <TouchableOpacity onPress={() => setClientSearch('')} accessibilityLabel="Limpar busca">
+                    <Ionicons name="close-circle" size={18} color="#A0B0B5" />
                   </TouchableOpacity>
                 )}
               </View>
@@ -407,31 +352,32 @@ export default function NovoGanhoScreen() {
                 data={clients.filter(c => c.name.toLowerCase().includes(clientSearch.toLowerCase()))}
                 keyExtractor={(item) => item.id}
                 showsVerticalScrollIndicator={false}
+                contentContainerStyle={{ paddingHorizontal: 8 }}
                 ListHeaderComponent={
-                  <TouchableOpacity 
+                  <TouchableOpacity
                     onPress={() => { setSelectedClient(null); setShowClientModal(false); setClientSearch(''); }}
-                    className="bg-surface p-4 rounded-[14px] mb-4 flex-row items-center shadow-sm"
+                    className="p-3.5 flex-row items-center border-b border-border"
                   >
-                    <Ionicons name="person-remove-outline" size={22} color="#6B7F85" />
-                    <Text className="text-text-secondary font-black text-base ml-3">Nenhum cliente específico</Text>
+                    <Ionicons name="person-remove-outline" size={20} color="#6B7F85" />
+                    <Text className="text-text-secondary font-semibold text-[15px] ml-3">Nenhum cliente específico</Text>
                   </TouchableOpacity>
                 }
                 renderItem={({ item }) => (
-                  <TouchableOpacity 
+                  <TouchableOpacity
                     onPress={() => { setSelectedClient(item); setShowClientModal(false); setClientSearch(''); }}
-                    className="bg-white p-4 rounded-[14px] mb-3 flex-row items-center shadow-sm"
+                    className="p-3.5 flex-row items-center border-b border-border"
                   >
-                    <View className="w-10 h-10 bg-primary/10 rounded-full items-center justify-center mr-4">
-                      <Text className="text-primary font-black text-base">{item.name[0]}</Text>
+                    <View className="w-9 h-9 bg-primary/10 rounded-full items-center justify-center mr-3">
+                      <Text className="text-primary font-bold text-[15px]">{item.name[0]}</Text>
                     </View>
                     <View className="flex-1">
                       <View className="flex-row items-center">
-                        <Text className="text-text-primary font-bold text-base mr-2">{item.name}</Text>
+                        <Text className="text-text-primary font-semibold text-[15px] mr-2">{item.name}</Text>
                         {item.is_whatsapp && (
-                          <Ionicons name="logo-whatsapp" size={14} color="#7BC67A" />
+                          <Ionicons name="logo-whatsapp" size={13} color="#4C8A4B" />
                         )}
                       </View>
-                      {item.phone && <Text className="text-text-secondary font-semibold text-xs">{item.phone}</Text>}
+                      {item.phone && <Text className="text-text-secondary text-xs mt-0.5">{item.phone}</Text>}
                     </View>
                   </TouchableOpacity>
                 )}
@@ -444,40 +390,41 @@ export default function NovoGanhoScreen() {
       {/* Service Modal */}
       <Modal visible={showServiceModal} animationType="slide" transparent>
         <View className="flex-1 bg-black/50 justify-end">
-          <View className="bg-white rounded-t-[20px] h-[65%] p-8 shadow-2xl">
-            <View className="flex-row justify-between items-center mb-6">
-              <Text className="text-2xl font-black text-text-primary">Tipo de Serviço</Text>
-              <TouchableOpacity onPress={() => setShowServiceModal(false)}>
-                <Ionicons name="close-circle" size={32} color="#A0B0B5" />
+          <View className="bg-white rounded-t-[24px] h-[65%] p-6 shadow-2xl">
+            <View className="flex-row justify-between items-center mb-5 px-2">
+              <Text className="text-xl font-bold text-text-primary">Tipo de Serviço</Text>
+              <TouchableOpacity onPress={() => setShowServiceModal(false)} accessibilityLabel="Fechar">
+                <Ionicons name="close-circle" size={28} color="#A0B0B5" />
               </TouchableOpacity>
             </View>
 
             <FlatList
               data={professions}
               keyExtractor={(item, index) => index.toString()}
+              contentContainerStyle={{ paddingHorizontal: 8 }}
               ListEmptyComponent={
-                <View className="items-center justify-center p-8 bg-surface rounded-[14px] shadow-sm">
-                  <Ionicons name="alert-circle-outline" size={48} color="#6B7F85" />
-                  <Text className="text-text-secondary font-bold text-center mt-4 text-sm leading-relaxed">
+                <View className="items-center justify-center p-8 bg-surface rounded-2xl border border-border">
+                  <Ionicons name="alert-circle-outline" size={40} color="#6B7F85" />
+                  <Text className="text-text-secondary font-semibold text-center mt-4 text-sm leading-relaxed">
                     Você ainda não cadastrou suas profissões no perfil.
                   </Text>
-                  <TouchableOpacity 
+                  <TouchableOpacity
                     onPress={() => { setShowServiceModal(false); router.push('/perfil/editar'); }}
                     className="mt-6 bg-primary px-6 py-3 rounded-full"
                   >
-                    <Text className="text-white font-black text-xs uppercase">CADASTRAR AGORA</Text>
+                    <Text className="text-white font-bold text-xs uppercase tracking-wide">Cadastrar agora</Text>
                   </TouchableOpacity>
                 </View>
               }
               renderItem={({ item }) => (
-                <TouchableOpacity 
+                <TouchableOpacity
                   onPress={() => { setSelectedServiceType(item); setShowServiceModal(false); }}
-                  className="bg-white p-4 rounded-[14px] mb-3 flex-row items-center shadow-sm"
+                  className="p-3.5 flex-row items-center border-b border-border"
                 >
-                  <View className="w-10 h-10 bg-primary/10 rounded-[10px] items-center justify-center mr-4">
-                    <Ionicons name={getProfessionIcon(item)} size={20} color="#0D4F5C" />
+                  <View className="w-9 h-9 bg-primary/10 rounded-full items-center justify-center mr-3">
+                    <Ionicons name={getProfessionIcon(item)} size={18} color="#0D4F5C" />
                   </View>
-                  <Text className="text-text-primary font-black text-base">{item}</Text>
+                  <Text className="text-text-primary font-semibold text-[15px]">{item}</Text>
                 </TouchableOpacity>
               )}
             />

@@ -229,6 +229,10 @@ export default function AgendaScreen() {
           const notifMins = item.notification_trigger_minutes ?? 60;
           const notifLabel = notifMins === 5 ? '5min' : notifMins === 30 ? '30min' : '1h';
 
+          const statusColor =
+            item.status === 'completed' ? '#7BC67A' :
+            item.status === 'cancelled' ? '#E05555' : '#0D4F5C';
+
           return (
             <TouchableOpacity
               onPress={() => {
@@ -236,18 +240,8 @@ export default function AgendaScreen() {
                 setShowDetailModal(true);
               }}
               activeOpacity={0.7}
-              className={`px-4 py-4 rounded-[20px] mb-4 ${
-                item.status === 'completed' ? 'bg-[#7BC67A]/10' :
-                item.status === 'cancelled' ? 'bg-[#E05555]/10' :
-                'bg-[#0D4F5C]/10'
-              }`}
-              style={{
-                shadowColor: '#000',
-                shadowOffset: { width: 0, height: 2 },
-                shadowOpacity: 0.06,
-                shadowRadius: 6,
-                elevation: 2,
-              }}
+              className="px-4 py-4 rounded-2xl mb-4 bg-white border border-border shadow-sm"
+              style={{ borderLeftWidth: 4, borderLeftColor: statusColor }}
               accessibilityLabel={`${displayTitle} com ${item.clients?.name?.split(' ')[0] || 'cliente'}. Toque para ver detalhes`}
               accessibilityRole="button"
             >
@@ -281,7 +275,7 @@ export default function AgendaScreen() {
               </View>
 
               {/* Informações organizadas em blocos */}
-              <View className="bg-white/60 rounded-[12px] p-3 mb-3">
+              <View className="bg-surface rounded-xl p-3 mb-3">
                 {/* Cliente */}
                 <View className="flex-row items-center mb-2.5">
                   <View className="w-8 h-8 bg-[#0D4F5C]/10 rounded-full items-center justify-center mr-2.5">
@@ -374,7 +368,7 @@ export default function AgendaScreen() {
                         onConfirm: () => deleteAppointment(item.id)
                       });
                     }}
-                    className="w-12 h-12 bg-white/80 rounded-full items-center justify-center"
+                    className="w-12 h-12 bg-surface rounded-full items-center justify-center"
                     accessibilityLabel={`Remover ${displayTitle}`}
                     accessibilityRole="button"
                   >

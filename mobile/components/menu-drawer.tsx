@@ -1,4 +1,4 @@
-import { LogoIcon } from '@/components/logo';
+import { AMJBranding } from '@/components/amj-branding';
 import { useProfile } from '@/hooks/use-profile';
 import { supabase } from '@/lib/supabase';
 import { useAuthStore } from '@/stores/auth';
@@ -11,7 +11,6 @@ import {
     Animated,
     Dimensions,
     Pressable,
-    ScrollView,
     Text, TouchableOpacity,
     View,
 } from 'react-native';
@@ -24,7 +23,6 @@ const DURATION = 280;
 interface DrawerItemProps {
   icon: React.ComponentProps<typeof Ionicons>['name'];
   label: string;
-  sublabel?: string;
   iconBg: string;
   iconColor: string;
   onPress: () => void;
@@ -32,13 +30,13 @@ interface DrawerItemProps {
 }
 
 const DrawerItem: React.FC<DrawerItemProps> = ({
-  icon, label, sublabel, iconBg, iconColor, onPress, danger,
+  icon, label, iconBg, iconColor, onPress, danger,
 }) => {
   const scale = useRef(new Animated.Value(1)).current;
 
   const handlePress = () => {
     Animated.sequence([
-      Animated.timing(scale, { toValue: 0.96, duration: 80, useNativeDriver: true }),
+      Animated.timing(scale, { toValue: 0.97, duration: 80, useNativeDriver: true }),
       Animated.spring(scale, { toValue: 1, tension: 200, friction: 8, useNativeDriver: true }),
     ]).start();
     onPress();
@@ -53,35 +51,29 @@ const DrawerItem: React.FC<DrawerItemProps> = ({
         accessibilityLabel={label}
         style={{
           flexDirection: 'row', alignItems: 'center',
-          paddingHorizontal: 20, paddingVertical: 12,
-          marginHorizontal: 12, marginVertical: 2,
-          borderRadius: 16,
+          paddingHorizontal: 20, paddingVertical: 9,
+          marginHorizontal: 12,
+          borderRadius: 14,
+          minHeight: 44,
         }}
       >
         <View style={{
-          width: 44, height: 44, borderRadius: 13,
+          width: 36, height: 36, borderRadius: 10,
           alignItems: 'center', justifyContent: 'center',
-          backgroundColor: iconBg, marginRight: 14,
+          backgroundColor: iconBg, marginRight: 13,
         }}>
-          <Ionicons name={icon} size={21} color={iconColor} />
+          <Ionicons name={icon} size={18} color={iconColor} />
         </View>
-        <View style={{ flex: 1 }}>
-          <Text style={{
-            fontSize: 15, fontWeight: '700',
-            color: danger ? '#E05555' : '#1A1A1A',
-          }}>
-            {label}
-          </Text>
-          {sublabel && (
-            <Text style={{ fontSize: 11, fontWeight: '500', color: '#6B7F85', marginTop: 2 }}>
-              {sublabel}
-            </Text>
-          )}
-        </View>
+        <Text style={{
+          flex: 1, fontSize: 14.5, fontWeight: '600',
+          color: danger ? '#E05555' : '#1A1A1A',
+        }}>
+          {label}
+        </Text>
         <Ionicons
           name="chevron-forward"
-          size={16}
-          color={danger ? '#E05555' : '#D0D9DC'}
+          size={15}
+          color={danger ? '#E05555' : '#C5D0D3'}
         />
       </TouchableOpacity>
     </Animated.View>
@@ -167,13 +159,13 @@ export const MenuDrawer: React.FC = () => {
         <LinearGradient
           colors={['#0D4F5C', '#1A6B7A']}
           start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
-          style={{ paddingHorizontal: 20, paddingTop: 16, paddingBottom: 28, borderBottomRightRadius: 0 }}
+          style={{ paddingHorizontal: 20, paddingTop: 10, paddingBottom: 18 }}
         >
           <TouchableOpacity
             onPress={closeDrawer}
             style={{
-              alignSelf: 'flex-end', marginBottom: 22,
-              width: 34, height: 34, borderRadius: 17,
+              alignSelf: 'flex-end', marginBottom: 10,
+              width: 28, height: 28, borderRadius: 14,
               backgroundColor: 'rgba(255,255,255,0.12)',
               borderWidth: 1, borderColor: 'rgba(255,255,255,0.18)',
               alignItems: 'center', justifyContent: 'center',
@@ -181,120 +173,102 @@ export const MenuDrawer: React.FC = () => {
             accessibilityLabel="Fechar menu"
             accessibilityRole="button"
           >
-            <Ionicons name="close" size={18} color="white" />
+            <Ionicons name="close" size={16} color="white" />
           </TouchableOpacity>
 
-          {/* Avatar */}
-          <View style={{
-            width: 64, height: 64, borderRadius: 32,
-            backgroundColor: '#7BC67A',
-            alignItems: 'center', justifyContent: 'center',
-            marginBottom: 16,
-            shadowColor: '#000',
-            shadowOffset: { width: 0, height: 4 },
-            shadowOpacity: 0.25, shadowRadius: 10, elevation: 10,
-            borderWidth: 2.5, borderColor: 'rgba(255,255,255,0.3)',
-          }}>
-            <Text style={{ color: '#FFFFFF', fontSize: 24, fontWeight: '900', letterSpacing: -0.5 }}>{initials}</Text>
-          </View>
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            {/* Avatar */}
+            <View style={{
+              width: 52, height: 52, borderRadius: 26,
+              backgroundColor: '#7BC67A',
+              alignItems: 'center', justifyContent: 'center',
+              marginRight: 13,
+              shadowColor: '#000',
+              shadowOffset: { width: 0, height: 3 },
+              shadowOpacity: 0.2, shadowRadius: 8, elevation: 8,
+              borderWidth: 2, borderColor: 'rgba(255,255,255,0.3)',
+            }}>
+              <Text style={{ color: '#FFFFFF', fontSize: 19, fontWeight: '900', letterSpacing: -0.5 }}>{initials}</Text>
+            </View>
 
-          <Text style={{ fontSize: 18, fontWeight: '900', color: '#FFFFFF', marginBottom: 3, letterSpacing: -0.3 }} numberOfLines={1}>
-            {displayName}
-          </Text>
-          <Text style={{ fontSize: 12, fontWeight: '500', color: 'rgba(255,255,255,0.6)', marginBottom: 16 }} numberOfLines={1}>
-            {displayEmail}
-          </Text>
-
-          <View style={{
-            backgroundColor: 'rgba(123,198,122,0.2)',
-            paddingHorizontal: 11, paddingVertical: 5,
-            borderRadius: 999, alignSelf: 'flex-start',
-            borderWidth: 1, borderColor: 'rgba(123,198,122,0.35)',
-            flexDirection: 'row', alignItems: 'center', gap: 6,
-          }}>
-            <View style={{ width: 5, height: 5, borderRadius: 2.5, backgroundColor: '#7BC67A' }} />
-            <Text style={{ color: '#7BC67A', fontSize: 11, fontWeight: '800', letterSpacing: 1.2, textTransform: 'uppercase' }}>
-              Conta Ativa
-            </Text>
+            <View style={{ flex: 1 }}>
+              <Text style={{ fontSize: 16.5, fontWeight: '800', color: '#FFFFFF', letterSpacing: -0.3 }} numberOfLines={1}>
+                {displayName}
+              </Text>
+              <Text style={{ fontSize: 12, fontWeight: '500', color: 'rgba(255,255,255,0.62)', marginTop: 1 }} numberOfLines={1}>
+                {displayEmail}
+              </Text>
+              <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 5, gap: 5 }}>
+                <View style={{ width: 5, height: 5, borderRadius: 2.5, backgroundColor: '#7BC67A' }} />
+                <Text style={{ color: '#7BC67A', fontSize: 10.5, fontWeight: '800', letterSpacing: 0.8, textTransform: 'uppercase' }}>
+                  Conta Ativa
+                </Text>
+              </View>
+            </View>
           </View>
         </LinearGradient>
 
         {/* Items */}
-        <ScrollView
-          style={{ flex: 1, paddingTop: 12 }}
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingBottom: 80 }}
-        >
-          <Text style={{ fontSize: 11, fontWeight: '800', color: '#A0B0B5', letterSpacing: 2, textTransform: 'uppercase', paddingHorizontal: 24, marginBottom: 4 }}>
+        <View style={{ flex: 1, paddingTop: 10 }}>
+          <Text style={{ fontSize: 10, fontWeight: '800', color: '#A0B0B5', letterSpacing: 1.4, textTransform: 'uppercase', paddingHorizontal: 24, marginBottom: 2 }}>
             Minha Conta
           </Text>
 
           <DrawerItem
             icon="person-outline" label="Editar Perfil"
-            sublabel="Nome, contato e profissão"
             iconBg="rgba(13,79,92,0.08)" iconColor="#0D4F5C"
             onPress={() => navigate('/perfil/editar')}
           />
           <DrawerItem
             icon="lock-closed-outline" label="Alterar Senha"
-            sublabel="Atualize sua senha"
             iconBg="rgba(123,198,122,0.12)" iconColor="#5AA858"
             onPress={() => navigate('/perfil/senha')}
           />
 
-          <View style={{ height: 1, backgroundColor: '#E2E8EA', marginHorizontal: 20, marginVertical: 8 }} />
-          <Text style={{ fontSize: 11, fontWeight: '800', color: '#A0B0B5', letterSpacing: 2, textTransform: 'uppercase', paddingHorizontal: 24, marginBottom: 4 }}>
+          <View style={{ height: 1, backgroundColor: '#E2E8EA', marginHorizontal: 20, marginVertical: 6 }} />
+          <Text style={{ fontSize: 10, fontWeight: '800', color: '#A0B0B5', letterSpacing: 1.4, textTransform: 'uppercase', paddingHorizontal: 24, marginBottom: 2 }}>
             Sessão
           </Text>
 
           <DrawerItem
             icon="log-out-outline" label="Sair da Conta"
-            sublabel="Encerrar sessão atual"
             iconBg="rgba(240,165,0,0.1)" iconColor="#F0A500"
             onPress={handleSignOut}
           />
 
-          <View style={{ height: 1, backgroundColor: '#E2E8EA', marginHorizontal: 20, marginVertical: 8 }} />
-          <Text style={{ fontSize: 11, fontWeight: '800', color: '#A0B0B5', letterSpacing: 2, textTransform: 'uppercase', paddingHorizontal: 24, marginBottom: 4 }}>
+          <View style={{ height: 1, backgroundColor: '#E2E8EA', marginHorizontal: 20, marginVertical: 6 }} />
+          <Text style={{ fontSize: 10, fontWeight: '800', color: '#A0B0B5', letterSpacing: 1.4, textTransform: 'uppercase', paddingHorizontal: 24, marginBottom: 2 }}>
             Legal
           </Text>
 
           <DrawerItem
             icon="document-text-outline" label="Política de Uso"
-            sublabel="Termos de uso do app"
             iconBg="rgba(26,107,122,0.08)" iconColor="#1A6B7A"
             onPress={() => navigate('/politica-uso')}
           />
           <DrawerItem
             icon="shield-checkmark-outline" label="Política de Privacidade"
-            sublabel="Como protegemos seus dados"
             iconBg="rgba(26,107,122,0.08)" iconColor="#1A6B7A"
             onPress={() => navigate('/politica-privacidade')}
           />
 
-          <View style={{ height: 1, backgroundColor: '#E2E8EA', marginHorizontal: 20, marginVertical: 8 }} />
+          <View style={{ height: 1, backgroundColor: '#E2E8EA', marginHorizontal: 20, marginVertical: 6 }} />
 
           <DrawerItem
             icon="trash-outline" label="Excluir Conta"
-            sublabel="Ação irreversível"
             iconBg="rgba(224,85,85,0.08)" iconColor="#E05555"
             onPress={() => navigate('/perfil/excluir')}
             danger
           />
-        </ScrollView>
+        </View>
 
         {/* Footer */}
         <View style={{
           borderTopWidth: 1, borderTopColor: '#F0F4F5',
-          paddingVertical: 14, paddingHorizontal: 20,
-          flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
-          gap: 10,
+          paddingVertical: 8, paddingHorizontal: 20,
+          alignItems: 'center', justifyContent: 'center',
         }}>
-          <LogoIcon size={30} />
-          <View>
-            <Text style={{ fontSize: 12, fontWeight: '800', color: '#1A1A1A', letterSpacing: -0.2 }}>Meu Corre</Text>
-            <Text style={{ fontSize: 11, fontWeight: '500', color: '#A0B0B5', marginTop: 1 }}>Controle Financeiro</Text>
-          </View>
+          <AMJBranding variant="light" />
         </View>
       </Animated.View>
     </View>

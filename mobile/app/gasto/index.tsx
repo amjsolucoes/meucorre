@@ -9,6 +9,9 @@ import MaskInput, { Masks } from 'react-native-mask-input';
 import { useTransactions } from '../../hooks/use-transactions';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ScreenHeader } from '@/components/screen-header';
+import { PaymentMethodSelector } from '@/components/payment-method-selector';
+import { SaveButton } from '@/components/save-button';
+import { GroupedCard, GroupedRow, SectionLabel } from '@/components/ui/form-section';
 import { useUIStore } from '@/stores/ui';
 import { useAuthStore } from '@/stores/auth';
 import { useProfile } from '@/hooks/use-profile';
@@ -49,7 +52,7 @@ export default function NovoGasto() {
   const [showClientModal, setShowClientModal] = useState(false);
   const [clientSearch, setClientSearch] = useState('');
   const [showDatePicker, setShowDatePicker] = useState(false);
-  
+
   const { categories, loading: loadingCategories } = useExpenseCategories();
   const [showCategoryModal, setShowCategoryModal] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<any>(null);
@@ -107,17 +110,16 @@ export default function NovoGasto() {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#FFFFFF' }} edges={['top']}>
-      {/* Hero Header */}
+      {/* Hero */}
       <LinearGradient
-        colors={['#E05555', '#E05555']}
+        colors={['#5C1A1E', '#93303A']}
         start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
       >
         <ScreenHeader title="Novo Gasto" subtitle="Registre suas despesas" transparent />
 
-        {/* Amount Card flutuante */}
-        <View style={{ paddingHorizontal: 20, paddingBottom: 28, alignItems: 'center' }}>
-          <Text style={{ fontSize: 11, fontWeight: '800', color: 'rgba(255,255,255,0.6)', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 8 }}>
-            VALOR DO GASTO
+        <View style={{ paddingHorizontal: 20, paddingBottom: 30, alignItems: 'center' }}>
+          <Text style={{ fontSize: 11, fontWeight: '700', color: 'rgba(255,255,255,0.55)', letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 8 }}>
+            Valor do gasto
           </Text>
           <Controller
             control={control}
@@ -127,15 +129,16 @@ export default function NovoGasto() {
                 value={value}
                 onChangeText={onChange}
                 mask={Masks.BRL_CURRENCY}
-                style={{ fontSize: 44, fontWeight: '900', color: '#FFFFFF', textAlign: 'center', letterSpacing: -1 }}
+                style={{ fontSize: 44, fontWeight: '700', color: '#FFFFFF', textAlign: 'center', letterSpacing: -1, fontVariant: ['tabular-nums'] }}
                 placeholder="R$ 0,00"
                 keyboardType="numeric"
                 placeholderTextColor="rgba(255,255,255,0.35)"
               />
             )}
           />
+          <View style={{ width: 56, height: 2, backgroundColor: 'rgba(255,255,255,0.25)', borderRadius: 2, marginTop: 12 }} />
           {errors.amount && (
-            <Text style={{ color: '#FFFFFF', marginTop: 6, fontSize: 12, fontWeight: '700', backgroundColor: 'rgba(0,0,0,0.15)', paddingHorizontal: 12, paddingVertical: 4, borderRadius: 999 }}>
+            <Text style={{ color: '#FFFFFF', marginTop: 10, fontSize: 12, fontWeight: '600', backgroundColor: 'rgba(0,0,0,0.2)', paddingHorizontal: 12, paddingVertical: 4, borderRadius: 999 }}>
               {errors.amount.message}
             </Text>
           )}
@@ -147,171 +150,113 @@ export default function NovoGasto() {
         style={{ flex: 1 }}
       >
         <ScrollView
-          style={{ flex: 1, paddingHorizontal: 20, marginTop: 16 }}
+          style={{ flex: 1, paddingHorizontal: 20, marginTop: 20 }}
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
         >
 
-          <View className="space-y-5">
-            
-            <View className="mb-5">
-              <Text className="text-text-secondary font-bold text-[10px] uppercase tracking-wider mb-2 ml-1">QUEM OU ONDE VOCÊ PAGOU?</Text>
-              <View className="flex-row items-center">
-                <View className="flex-1">
-                  <Controller
-                    control={control}
-                    name="entity_name"
-                    render={({ field: { onChange, value } }) => (
-                      <TextInput
-                        value={value}
-                        onChangeText={(text) => {
-                          onChange(text);
-                          setSelectedClientId(null);
-                        }}
-                        placeholder="Ex: Posto, Mercado, João..."
-                        className="bg-surface p-4 rounded-[10px] text-base font-semibold text-text-primary shadow-sm"
-                        placeholderTextColor="#A0B0B5"
-                      />
-                    )}
-                  />
+          <View className="mb-6">
+            <SectionLabel>Detalhes do gasto</SectionLabel>
+            <GroupedCard>
+              <View className="flex-row items-center px-4 py-3.5 border-b border-border">
+                <View className="w-9 h-9 rounded-full items-center justify-center mr-3" style={{ backgroundColor: 'rgba(147, 48, 58, 0.08)' }}>
+                  <Ionicons name="storefront-outline" size={17} color="#93303A" />
                 </View>
-                <TouchableOpacity 
+                <Controller
+                  control={control}
+                  name="entity_name"
+                  render={({ field: { onChange, value } }) => (
+                    <TextInput
+                      value={value}
+                      onChangeText={(text) => {
+                        onChange(text);
+                        setSelectedClientId(null);
+                      }}
+                      placeholder="Quem ou onde você pagou?"
+                      className="flex-1 text-[15px] font-semibold text-text-primary"
+                      placeholderTextColor="#A0B0B5"
+                    />
+                  )}
+                />
+                <TouchableOpacity
                   onPress={() => setShowClientModal(true)}
-                  className="ml-3 bg-[#E05555]/10 p-4 rounded-[12px] shadow-sm justify-center items-center"
-                  activeOpacity={0.7}
-                  style={{ minWidth: 52, minHeight: 52 }}
+                  accessibilityLabel="Selecionar cliente"
+                  accessibilityRole="button"
+                  className="ml-1 items-center justify-center"
+                  style={{ width: 44, height: 44 }}
                 >
-                  <Ionicons name="people" size={20} color="#E05555" />
+                  <Ionicons name="people-outline" size={19} color="#93303A" />
                 </TouchableOpacity>
               </View>
-              {errors.entity_name && <Text className="text-[#E05555] mt-1.5 ml-1 text-xs font-bold">{errors.entity_name.message}</Text>}
-            </View>
 
-            <View className="mb-5">
-              <Text className="text-text-secondary font-bold text-[10px] uppercase tracking-wider mb-2 ml-1">COM O QUE VOCÊ GASTOU?</Text>
-              <Controller
-                control={control}
-                name="category_id"
-                render={({ field: { value, onChange } }) => (
-                  <>
-                    <TouchableOpacity 
-                      onPress={() => setShowCategoryModal(true)}
-                      activeOpacity={0.7}
-                      className="bg-surface p-4 rounded-[14px] flex-row items-center justify-between shadow-sm"
-                    >
-                      <View className="flex-row items-center">
-                        <View 
-                          className="w-10 h-10 rounded-full items-center justify-center mr-3"
-                          style={{ backgroundColor: selectedCategory?.color ? `${selectedCategory.color}15` : 'rgba(13, 79, 92, 0.08)' }}
-                        >
-                          <Ionicons 
-                            name={selectedCategory?.icon || 'grid-outline'} 
-                            size={18} 
-                            color={selectedCategory?.color || '#0D4F5C'} 
-                          />
-                        </View>
-                        <Text className={`text-base font-bold ${selectedCategory ? 'text-text-primary' : 'text-text-hint'}`}>
-                          {selectedCategory?.name || 'Selecione a categoria'}
-                        </Text>
-                      </View>
-                      <Ionicons name="chevron-forward" size={18} color="#A0B0B5" />
-                    </TouchableOpacity>
-                  </>
-                )}
+              <GroupedRow
+                icon={selectedCategory?.icon || 'grid-outline'}
+                iconColor={selectedCategory?.color || '#93303A'}
+                iconBg={selectedCategory?.color ? `${selectedCategory.color}15` : 'rgba(147, 48, 58, 0.08)'}
+                text={selectedCategory?.name || 'Selecione a categoria'}
+                muted={!selectedCategory}
+                onPress={() => setShowCategoryModal(true)}
               />
-              {errors.category_id && <Text className="text-[#E05555] mt-1.5 ml-1 text-xs font-bold">{errors.category_id.message}</Text>}
-            </View>
 
-            <View className="mb-5">
-              <Text className="text-text-secondary font-bold text-[10px] uppercase tracking-wider mb-2 ml-1">QUANDO FOI ISSO?</Text>
               <Controller
                 control={control}
                 name="date"
-                render={({ field: { value, onChange } }) => (
-                  <>
-                    <TouchableOpacity 
-                      onPress={() => setShowDatePicker(true)}
-                      activeOpacity={0.7}
-                      className="bg-surface p-4 rounded-[14px] flex-row items-center justify-between shadow-sm"
-                    >
-                      <View className="flex-row items-center">
-                        <View className="w-10 h-10 bg-[#E05555]/15 rounded-full items-center justify-center mr-3">
-                          <Ionicons name="calendar" size={18} color="#E05555" />
-                        </View>
-                        <Text className="text-base font-bold text-text-primary">
-                          {format(value, "EEEE, d 'de' MMMM", { locale: ptBR })}
-                        </Text>
-                      </View>
-                      <Ionicons name="chevron-forward" size={18} color="#A0B0B5" />
-                    </TouchableOpacity>
-
-                    {showDatePicker && (
-                      <DateTimePicker
-                        value={value}
-                        mode="date"
-                        display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-                        onChange={(event, selectedDate) => {
-                          setShowDatePicker(Platform.OS === 'ios');
-                          if (selectedDate) {
-                            onChange(selectedDate);
-                          }
-                        }}
-                        maximumDate={new Date()}
-                      />
-                    )}
-                  </>
+                render={({ field: { value } }) => (
+                  <GroupedRow
+                    icon="calendar"
+                    iconColor="#93303A"
+                    iconBg="rgba(147, 48, 58, 0.08)"
+                    text={format(value, "EEEE, d 'de' MMMM", { locale: ptBR })}
+                    onPress={() => setShowDatePicker(true)}
+                    isLast
+                  />
                 )}
               />
-            </View>
+            </GroupedCard>
+            {(errors.entity_name || errors.category_id) && (
+              <Text className="text-[#93303A] mt-1.5 ml-1 text-xs font-semibold">
+                {errors.entity_name?.message || errors.category_id?.message}
+              </Text>
+            )}
+          </View>
 
-            <View className="mb-5">
-              <Text className="text-text-secondary font-bold text-[10px] uppercase tracking-wider mb-2 ml-1">COMO PAGOU?</Text>
-              <Controller
-                control={control}
-                name="payment_method"
-                render={({ field: { onChange, value } }) => (
-                  <View className="flex-row justify-between gap-3">
-                    {[
-                      { id: 'pix', label: 'PIX', icon: 'flash', color: '#0D4F5C', bg: 'rgba(13, 79, 92, 0.08)' },
-                      { id: 'cash', label: 'DINHEIRO', icon: 'cash', color: '#7BC67A', bg: 'rgba(123, 198, 122, 0.12)' },
-                      { id: 'card', label: 'CARTÃO', icon: 'card', color: '#F0A500', bg: 'rgba(240, 165, 0, 0.1)' },
-                    ].map((item) => {
-                      const isSelected = value === item.id;
-                      return (
-                        <TouchableOpacity
-                          key={item.id}
-                          onPress={() => onChange(item.id)}
-                          activeOpacity={0.7}
-                          className={`flex-1 p-4 rounded-[14px] items-center justify-center border ${
-                            isSelected ? 'border-transparent' : 'bg-white border-border'
-                          }`}
-                          style={isSelected ? { backgroundColor: item.color, elevation: 2 } : {}}
-                        >
-                          <View 
-                            className={`w-10 h-10 rounded-full items-center justify-center mb-2`}
-                            style={{ backgroundColor: isSelected ? 'rgba(255,255,255,0.2)' : item.bg }}
-                          >
-                            <Ionicons 
-                              name={item.icon as any} 
-                              size={18} 
-                              color={isSelected ? 'white' : item.color} 
-                            />
-                          </View>
-                          <Text className={`text-[10px] font-black ${
-                            isSelected ? 'text-white' : 'text-text-secondary'
-                          }`}>
-                            {item.label}
-                          </Text>
-                        </TouchableOpacity>
-                      );
-                    })}
-                  </View>
+          <Controller
+            control={control}
+            name="date"
+            render={({ field: { onChange, value } }) => (
+              <>
+                {showDatePicker && (
+                  <DateTimePicker
+                    value={value}
+                    mode="date"
+                    display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                    onChange={(event, selectedDate) => {
+                      setShowDatePicker(Platform.OS === 'ios');
+                      if (selectedDate) {
+                        onChange(selectedDate);
+                      }
+                    }}
+                    maximumDate={new Date()}
+                  />
                 )}
-              />
-            </View>
+              </>
+            )}
+          />
 
-            <View className="mb-5">
-              <Text className="text-text-secondary font-bold text-[10px] uppercase tracking-wider mb-2 ml-1">DETALHES (OPCIONAL)</Text>
+          <View className="mb-6">
+            <SectionLabel>Como pagou?</SectionLabel>
+            <Controller
+              control={control}
+              name="payment_method"
+              render={({ field: { onChange, value } }) => (
+                <PaymentMethodSelector value={value} onChange={onChange} />
+              )}
+            />
+          </View>
+
+          <View className="mb-2">
+            <SectionLabel>Detalhes (opcional)</SectionLabel>
+            <GroupedCard>
               <Controller
                 control={control}
                 name="description"
@@ -322,54 +267,39 @@ export default function NovoGasto() {
                     placeholder="Adicione uma observação..."
                     multiline
                     numberOfLines={3}
-                    className="bg-surface p-4 rounded-[10px] text-base font-semibold text-text-primary min-h-[100px] shadow-sm"
+                    className="px-4 py-3.5 text-[15px] font-semibold text-text-primary min-h-[90px]"
                     textAlignVertical="top"
                     placeholderTextColor="#A0B0B5"
                   />
                 )}
               />
-            </View>
-
+            </GroupedCard>
           </View>
 
-          <TouchableOpacity
+          <SaveButton
             onPress={handleSubmit(onSubmit)}
-            disabled={loading}
-            activeOpacity={0.85}
-            style={{ borderRadius: 999, overflow: 'hidden', marginTop: 24, marginBottom: 100, shadowColor: '#E05555', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.3, shadowRadius: 16, elevation: 10 }}
-            accessibilityLabel="Salvar gasto"
-          >
-            <LinearGradient
-              colors={loading ? ['#C5D0D3', '#C5D0D3'] : ['#E05555', '#E05555']}
-              start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
-              style={{ height: 58, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 10 }}
-            >
-              {loading ? (
-                <ActivityIndicator color="white" />
-              ) : (
-                <>
-                  <Ionicons name="receipt" size={22} color="white" />
-                  <Text style={{ color: 'white', fontSize: 16, fontWeight: '800', letterSpacing: 0.5 }}>Salvar Gasto</Text>
-                </>
-              )}
-            </LinearGradient>
-          </TouchableOpacity>
+            loading={loading}
+            label="Salvar Gasto"
+            icon="receipt"
+            colors={['#93303A', '#7A2530']}
+            shadowColor="#5C1A1E"
+          />
 
         </ScrollView>
       </KeyboardAvoidingView>
 
       <Modal visible={showCategoryModal} animationType="slide" transparent>
         <View className="flex-1 bg-black/50 justify-end">
-          <View className="bg-white rounded-t-[20px] h-[75%] p-8 shadow-2xl">
-            <View className="flex-row justify-between items-center mb-6">
-              <Text className="text-2xl font-black text-text-primary">O que você comprou?</Text>
-              <TouchableOpacity onPress={() => setShowCategoryModal(false)}>
-                <Ionicons name="close-circle" size={32} color="#A0B0B5" />
+          <View className="bg-white rounded-t-[24px] h-[75%] p-6 shadow-2xl">
+            <View className="flex-row justify-between items-center mb-5 px-2">
+              <Text className="text-xl font-bold text-text-primary">O que você comprou?</Text>
+              <TouchableOpacity onPress={() => setShowCategoryModal(false)} accessibilityLabel="Fechar">
+                <Ionicons name="close-circle" size={28} color="#A0B0B5" />
               </TouchableOpacity>
             </View>
 
             {loadingCategories ? (
-              <ActivityIndicator className="mt-10" color="#0D4F5C" />
+              <ActivityIndicator className="mt-10" color="#93303A" />
             ) : (
               <FlatList
                 data={categories}
@@ -378,22 +308,22 @@ export default function NovoGasto() {
                 columnWrapperStyle={{ justifyContent: 'space-between', gap: 12 }}
                 showsVerticalScrollIndicator={false}
                 renderItem={({ item }) => (
-                  <TouchableOpacity 
-                    onPress={() => { 
+                  <TouchableOpacity
+                    onPress={() => {
                       setSelectedCategory(item);
                       setValue('category_id', item.id);
                       setShowCategoryModal(false);
                     }}
                     style={{ flex: 1 }}
-                    className="bg-white p-4 rounded-[14px] mb-3 items-center shadow-sm"
+                    className="bg-surface p-4 rounded-2xl mb-3 items-center border border-border"
                   >
-                    <View 
-                      className="w-12 h-12 rounded-full items-center justify-center mb-3"
+                    <View
+                      className="w-11 h-11 rounded-full items-center justify-center mb-2.5"
                       style={{ backgroundColor: `${item.color}15` }}
                     >
-                      <Ionicons name={item.icon as any} size={22} color={item.color} />
+                      <Ionicons name={item.icon as any} size={20} color={item.color} />
                     </View>
-                    <Text className="text-text-primary font-black text-center text-xs leading-tight">{item.name}</Text>
+                    <Text className="text-text-primary font-semibold text-center text-xs leading-tight">{item.name}</Text>
                   </TouchableOpacity>
                 )}
               />
@@ -404,64 +334,65 @@ export default function NovoGasto() {
 
       <Modal visible={showClientModal} animationType="slide" transparent>
         <View className="flex-1 bg-black/50 justify-end">
-          <View className="bg-white rounded-t-[20px] h-[75%] p-8 shadow-2xl">
-            <View className="flex-row justify-between items-center mb-6">
-              <Text className="text-2xl font-black text-text-primary">Selecionar Cliente</Text>
-              <TouchableOpacity onPress={() => setShowClientModal(false)}>
-                <Ionicons name="close-circle" size={32} color="#A0B0B5" />
+          <View className="bg-white rounded-t-[24px] h-[75%] p-6 shadow-2xl">
+            <View className="flex-row justify-between items-center mb-5 px-2">
+              <Text className="text-xl font-bold text-text-primary">Selecionar Cliente</Text>
+              <TouchableOpacity onPress={() => setShowClientModal(false)} accessibilityLabel="Fechar">
+                <Ionicons name="close-circle" size={28} color="#A0B0B5" />
               </TouchableOpacity>
             </View>
-            
-            <View className="mb-5">
-              <View className="flex-row bg-surface rounded-[10px] items-center px-4 py-3 shadow-sm">
-                <Ionicons name="search-outline" size={20} color="#6B7F85" />
+
+            <View className="mb-4 px-2">
+              <View className="flex-row bg-surface rounded-xl items-center px-4 py-3 border border-border">
+                <Ionicons name="search-outline" size={18} color="#6B7F85" />
                 <TextInput
                   placeholder="Pesquisar cliente..."
                   value={clientSearch}
                   onChangeText={setClientSearch}
-                  className="flex-1 ml-3 text-base font-semibold text-text-primary"
+                  className="flex-1 ml-3 text-[15px] font-medium text-text-primary"
                   placeholderTextColor="#A0B0B5"
                 />
               </View>
             </View>
 
             {loadingClients ? (
-              <ActivityIndicator className="mt-10" color="#0D4F5C" />
+              <ActivityIndicator className="mt-10" color="#93303A" />
             ) : (
               <FlatList
                 data={clients.filter(c => c.name.toLowerCase().includes(clientSearch.toLowerCase()))}
                 keyExtractor={(item) => item.id}
                 showsVerticalScrollIndicator={false}
+                contentContainerStyle={{ paddingHorizontal: 8 }}
                 ListHeaderComponent={
-                  <TouchableOpacity 
-                    onPress={() => { 
+                  <TouchableOpacity
+                    onPress={() => {
                       setValue('entity_name', '');
                       setSelectedClientId(null);
-                      setShowClientModal(false); 
-                      setClientSearch(''); 
+                      setShowClientModal(false);
+                      setClientSearch('');
                     }}
-                    className="bg-surface p-4 rounded-[14px] mb-4 flex-row items-center shadow-sm"
+                    className="p-3.5 flex-row items-center border-b border-border"
                   >
-                    <Ionicons name="person-remove-outline" size={22} color="#6B7F85" />
-                    <Text className="text-text-secondary font-black text-base ml-3">Limpar seleção</Text>
+                    <Ionicons name="person-remove-outline" size={20} color="#6B7F85" />
+                    <Text className="text-text-secondary font-semibold text-[15px] ml-3">Limpar seleção</Text>
                   </TouchableOpacity>
                 }
                 renderItem={({ item }) => (
-                  <TouchableOpacity 
-                    onPress={() => { 
+                  <TouchableOpacity
+                    onPress={() => {
                       setValue('entity_name', item.name);
                       setSelectedClientId(item.id);
                       setShowClientModal(false);
                       setClientSearch('');
                     }}
-                    className="bg-white p-4 rounded-[14px] mb-3 flex-row items-center shadow-sm"
+                    className="p-3.5 flex-row items-center border-b border-border"
                   >
-                    <View className="w-10 h-10 bg-[#E05555]/10 rounded-full items-center justify-center mr-4">
-                      <Text className="text-[#E05555] font-black text-base">{item.name[0]}</Text>
+                    <View className="w-9 h-9 bg-[#93303A]/10 rounded-full items-center justify-center mr-3">
+                      <Text className="text-[#93303A] font-bold text-[15px]">{item.name[0]}</Text>
                     </View>
                     <View className="flex-1">
-                      <Text className="text-text-primary font-bold text-base">{item.name}</Text>
-                      {item.phone && <Text className="text-text-secondary font-semibold text-xs">{item.phone}</Text>}
+                      <Text className="text-text-primary font-semibold text-[15px]">{item.name}</Text>
+                      {item.phone && <Text className="text-text-secondary text-xs mt-0.5">{item.phone}</Text>}
                     </View>
                   </TouchableOpacity>
                 )}

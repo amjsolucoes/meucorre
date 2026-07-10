@@ -52,7 +52,7 @@ export function WaitlistForm() {
         </button>
       </form>
       {status === 'error' && (
-        <p role="alert" className="mt-2 font-body text-xs font-semibold text-red-600">
+        <p role="alert" className="mt-2 font-body text-xs font-semibold text-error">
           {message}
         </p>
       )}

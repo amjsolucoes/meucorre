@@ -10,6 +10,7 @@ const config: Config = {
         accent: { DEFAULT: '#7BC67A', dark: '#4C8A4B' },
         surface: '#F5F7F8',
         border: '#E2E8EA',
+        error: '#E05555',
         'text-primary': '#1A1A1A',
         'text-secondary': '#6B7F85',
         'text-hint': '#A0B0B5',

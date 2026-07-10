@@ -1,36 +1,35 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Meu Corre — Site
 
-## Getting Started
+Landing page em Next.js (App Router) apresentando o app Meu Corre, com páginas de Política de
+Privacidade, Termos de Uso e Exclusão de Conta.
 
-First, run the development server:
+## Rodando localmente
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Abre em http://localhost:3000.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Pra testar o formulário de e-mail contra o Supabase local do monorepo, suba a stack local a
+partir da raiz do projeto (`npm run supabase:start`) e crie um `.env.local` aqui em `web/`
+com a URL/anon key impressas por esse comando — sobrescreve o `.env` (que aponta pro Supabase de
+produção) só neste ambiente.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Testes
 
-## Learn More
+```bash
+npm test
+```
 
-To learn more about Next.js, take a look at the following resources:
+## Deploy (Coolify)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Este projeto é um Next.js padrão — o Coolify detecta e builda via Nixpacks automaticamente, sem
+Dockerfile. Configure estas env vars no serviço do Coolify:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+(mesmos valores do `.env` deste repositório — são a URL e a chave pública do Supabase de
+produção, protegida por RLS, não é segredo).

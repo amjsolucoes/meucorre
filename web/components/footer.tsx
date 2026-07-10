@@ -12,7 +12,7 @@ export function Footer() {
     <footer className="border-t border-border bg-surface">
       <div className="mx-auto max-w-6xl px-6 py-14">
         <div className="flex flex-col items-center gap-8 text-center">
-          <Image src="/meu-corre-logo.png" alt="Meu Corre" width={140} height={56} />
+          <Image src="/meu-corre-logo.png" alt="Meu Corre" width={140} height={57} />
 
           <nav aria-label="Links legais">
             <ul className="flex flex-wrap justify-center gap-x-6 gap-y-2 font-body text-sm font-semibold text-text-secondary">
@@ -37,7 +37,7 @@ export function Footer() {
             <span className="font-body text-xs uppercase tracking-widest text-text-hint">
               Desenvolvido por
             </span>
-            <Image src="/logo-amj-cinza.png" alt="AMJ Inovações e Serviços" width={120} height={48} />
+            <Image src="/logo-amj-cinza.png" alt="AMJ Inovações e Serviços" width={120} height={88} />
           </div>
 
           <p className="font-body text-xs text-text-hint">
